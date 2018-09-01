@@ -187,6 +187,27 @@ class Clock extends Component {
     }
     var rYear = daysTotal/365;
 
+
+    if (this.state.sunTimes) {
+      var rDaySunrise = (this.state.sunTimes.sunrise.getHours() + this.state.sunTimes.sunrise.getMinutes()/60)/24;
+      var rDaySunset = (this.state.sunTimes.sunset.getHours() + this.state.sunTimes.sunset.getMinutes()/60)/24;
+    }
+
+    var rMonthNewMoon = rMonth - this.state.moonPhase;
+    var rMonthFirstQuarterMoon = rMonthNewMoon + 0.25;
+    var rMonthFullMoon = rMonthNewMoon + 0.5;
+    var rMonthThirdQuarterMoon = rMonthNewMoon + 0.75;
+
+    var rYearWinterSolstice = (365-10)/365;
+    var rYearFallEquinox = rYearWinterSolstice - 0.25;
+    var rYearSummerSolstice = rYearWinterSolstice - 0.5;
+    var rYearSpringEquinox = rYearWinterSolstice - 0.75;
+
+    var rYearPerihelion = 4/365;
+    var rYearAphelion = rYearPerihelion + 0.5;
+
+
+
     var cx = this.props.size;
     var cy = this.props.size;
     var width = this.props.size/12
@@ -194,17 +215,14 @@ class Clock extends Component {
     var centerSize = this.props.size/3
     var spacing = this.props.size/6.5
 
+    var hours12 = this.state.date.getHours();
+    if (hours12 > 12) {
+      hours12 -= 12
+    }
+    var timeString = ("00" + hours12).slice (-2) + ":" + ("00" + this.state.date.getMinutes()).slice(-2);
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    if (this.state.sunTimes) {
-      var rDaySunrise = (this.state.sunTimes.sunrise.getHours() + this.state.sunTimes.sunrise.getMinutes()/60)/24;
-      var rDaySunset = (this.state.sunTimes.sunset.getHours() + this.state.sunTimes.sunset.getMinutes()/60)/24;
-    }
 
-    var rMonthNewMoon = rMonth - this.state.moonPhase
-    var rMonthFirstQuarterMoon = rMonthNewMoon + 0.25
-    var rMonthFullMoon = rMonthNewMoon + 0.5
-    var rMonthThirdQuarterMoon = rMonthNewMoon + 0.75
 
     console.log(rDaySunrise);
 
@@ -213,10 +231,16 @@ class Clock extends Component {
 
     return (
       <div>
-        <div style={{margin: "auto"}}>
+        <div>
           <svg width={this.props.size*2} height={this.props.size*2}>
             <g>
               {/* per-year */}
+              <Tick cx={cx} cy={cy} r={centerSize+0*spacing} endAngle={rYearWinterSolstice} color={this.props.color} strokeWidth={strokeWidth/2} length={width}/>
+              <Tick cx={cx} cy={cy} r={centerSize+0*spacing} endAngle={rYearFallEquinox} color={this.props.color} strokeWidth={strokeWidth/2} length={width}/>
+              <Tick cx={cx} cy={cy} r={centerSize+0*spacing} endAngle={rYearSummerSolstice} color={this.props.color} strokeWidth={strokeWidth/2} length={width}/>
+              <Tick cx={cx} cy={cy} r={centerSize+0*spacing} endAngle={rYearSpringEquinox} color={this.props.color} strokeWidth={strokeWidth/2} length={width}/>
+              <Tick cx={cx} cy={cy} r={centerSize+0*spacing} endAngle={rYearPerihelion} color={this.props.color} strokeWidth={strokeWidth} length={width/2}/>
+              <Tick cx={cx} cy={cy} r={centerSize+0*spacing} endAngle={rYearAphelion} color={this.props.color} strokeWidth={strokeWidth} length={width/2}/>
               <CircleSegment cx={cx} cy={cy} r={centerSize+0*spacing} width={width} startAngle={0} endAngle={rYear} color={this.props.color} strokeWidth={strokeWidth}/>
 
               {/* per-month */}
@@ -243,9 +267,12 @@ class Clock extends Component {
           </svg>
         </div>
 
-        <h2 style={{color: this.props.color}}>{this.state.date.toLocaleTimeString()}<br/>{dateString}</h2>
-        <p style={{color: this.props.color}}>Sunrise: {this.state.sunTimes ? this.state.sunTimes.sunrise.toLocaleTimeString() : "waiting for location"} | Sunset: {this.state.sunTimes ? this.state.sunTimes.sunset.toLocaleTimeString() : "waiting for location"}</p>
-        <p style={{color: this.props.color}}>Moonphase: {this.state.moonPhase}</p>
+        <div>
+          <p style={{color: this.props.color, margin: "5px", fontFamily: "Helvetica, Arial, sans-serif", fontSize: 56, fontWeight: "bold"}}>{timeString}</p>
+          <p style={{color: this.props.color, margin: "5px", fontSize: 24}}>{dateString}</p>
+          {/* <p style={{color: this.props.color}}>Sunrise: {this.state.sunTimes ? this.state.sunTimes.sunrise.toLocaleTimeString() : "waiting for location"} | Sunset: {this.state.sunTimes ? this.state.sunTimes.sunset.toLocaleTimeString() : "waiting for location"}</p> */}
+          {/* <p style={{color: this.props.color}}>Moonphase: {this.state.moonPhase}</p> */}
+        </div>
       </div>
     );
   }
