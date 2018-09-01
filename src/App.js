@@ -131,6 +131,9 @@ class Clock extends Component {
     var strokeWidth = this.props.size/100
     var centerSize = this.props.size/3
     var spacing = this.props.size/6.5
+
+    var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
     return (
       <div>
         <div style={{margin: "auto"}}>
@@ -154,7 +157,7 @@ class Clock extends Component {
           </svg>
         </div>
 
-        <h2 style={{color: this.props.color}}>{this.state.date.getFullYear()}.{this.state.date.getMonth()}.{this.state.date.getDate()} {this.state.date.getHours()}:{this.state.date.getMinutes()}:{this.state.date.getSeconds()}</h2>
+        <h2 style={{color: this.props.color}}>{this.state.date.toLocaleTimeString()}<br/>{dateString}</h2>
       </div>
     );
   }
