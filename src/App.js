@@ -9,7 +9,7 @@ export default class App extends Component {
   render() {
     return (
       <div className="App">
-        <Clock size={300}/>
+        <Clock size={300} color={'white'}/>
       </div>
     );
   }
@@ -43,19 +43,19 @@ class CircleSegment extends Component {
     var strokeWidth = this.props.strokeWidth || this.props.width;
 
     if (this.props.strokeWidth) {
-      var strokeWidthInner = this.props.width - 2 * this.props.strokeWidth;
+      var strokeWidthInner = (this.props.width)/2;
 
-      var d = ["M", x+(r-strokeWidthInner)*Math.sin(startAngle), y-(r-strokeWidthInner)*Math.cos(startAngle),
-               "A", r-strokeWidthInner, r-strokeWidthInner, 0, largeArc, 1, x+(r-strokeWidthInner)*Math.sin(endAngle), y-(r-strokeWidthInner)*Math.cos(endAngle),
+      var d = ["M", x+(r-strokeWidthInner+strokeWidth/2)*Math.sin(startAngle), y-(r-strokeWidthInner+strokeWidth/2)*Math.cos(startAngle),
+               "A", r-strokeWidthInner+strokeWidth/2, r-strokeWidthInner+strokeWidth/2, 0, largeArc, 1, x+(r-strokeWidthInner+strokeWidth/2)*Math.sin(endAngle), y-(r-strokeWidthInner+strokeWidth/2)*Math.cos(endAngle),
 
-               "M", x+(r+strokeWidthInner-strokeWidth)*Math.sin(startAngle), y-(r+strokeWidthInner-strokeWidth)*Math.cos(startAngle),
-               "A", r+strokeWidthInner-strokeWidth, r+strokeWidthInner-strokeWidth, 0, largeArc, 1, x+(r+strokeWidthInner-strokeWidth)*Math.sin(endAngle), y-(r+strokeWidthInner-strokeWidth)*Math.cos(endAngle),
+               "M", x+(r+strokeWidthInner-strokeWidth/2)*Math.sin(startAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(startAngle),
+               "A", r+strokeWidthInner-strokeWidth/2, r+strokeWidthInner-strokeWidth/2, 0, largeArc, 1, x+(r+strokeWidthInner-strokeWidth/2)*Math.sin(endAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(endAngle),
 
-               "M", x+(r-strokeWidthInner+strokeWidth/2)*Math.sin(startAngle)+strokeWidth/2*Math.cos(startAngle), y-(r-strokeWidthInner-strokeWidth/2)*Math.cos(startAngle)+strokeWidth/2*Math.sin(startAngle),
-               "L", x+(r+strokeWidthInner+strokeWidth/2)*Math.sin(startAngle)+strokeWidth/2*Math.cos(startAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(startAngle)+strokeWidth/2*Math.sin(startAngle),
+               "M", x+(r-strokeWidthInner)*Math.sin(startAngle)+strokeWidth/2*Math.cos(startAngle), y-(r-strokeWidthInner)*Math.cos(startAngle)+strokeWidth/2*Math.sin(startAngle),
+               "L", x+(r+strokeWidthInner)*Math.sin(startAngle)+strokeWidth/2*Math.cos(startAngle), y-(r+strokeWidthInner)*Math.cos(startAngle)+strokeWidth/2*Math.sin(startAngle),
 
-               "M", x+(r-strokeWidthInner-strokeWidth/2)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r-strokeWidthInner-strokeWidth/2)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
-               "L", x+(r+strokeWidthInner-strokeWidth/2)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
+               "M", x+(r-strokeWidthInner)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r-strokeWidthInner)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
+               "L", x+(r+strokeWidthInner)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r+strokeWidthInner)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
               ].join(" ");
 
     } else {
@@ -82,8 +82,8 @@ class Tick extends Component {
     var x = this.props.cx;
     var y= this.props.cy;
 
-    var d = ["M", x+(r-strokeWidthInner-strokeWidth/2)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r-strokeWidthInner-strokeWidth/2)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
-             "L", x+(r+strokeWidthInner-strokeWidth/2)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
+    var d = ["M", x+(r-strokeWidthInner)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r-strokeWidthInner)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
+             "L", x+(r+strokeWidthInner)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r+strokeWidthInner)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
 
 
             ].join(" ");
@@ -128,34 +128,33 @@ class Clock extends Component {
     var cx = this.props.size;
     var cy = this.props.size;
     var width = this.props.size/12
-    var strokeWidth = this.props.size/50
+    var strokeWidth = this.props.size/100
     var centerSize = this.props.size/3
-    var spacing = this.props.size/8
+    var spacing = this.props.size/6.5
     return (
       <div>
         <div style={{margin: "auto"}}>
           <svg width={this.props.size*2} height={this.props.size*2}>
             <g>
               {/* per-year */}
-              <CircleSegment cx={cx} cy={cy} r={centerSize+0*spacing} width={width} startAngle={0} endAngle={rYear} color={'black'} strokeWidth={strokeWidth}/>
+              <CircleSegment cx={cx} cy={cy} r={centerSize+0*spacing} width={width} startAngle={0} endAngle={rYear} color={this.props.color} strokeWidth={strokeWidth}/>
 
               {/* per-month */}
-              <CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={width} startAngle={0} endAngle={rMonth} color={'black'} strokeWidth={strokeWidth}/>
+              <CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={width} startAngle={0} endAngle={rMonth} color={this.props.color} strokeWidth={strokeWidth}/>
 
               {/* per-day (hour) */}
-              <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={rDay} color={'black'}/>
+              <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={rDay} color={this.props.color}/>
 
               {/* per-hour (minute) */}
-              <CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={width} startAngle={0} endAngle={rHour} color={'black'}/>
+              <CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={width} startAngle={0} endAngle={rHour} color={this.props.color}/>
 
               {/* per-minute (second) */}
-              {/* <CircleSegment cx={cx} cy={cy} r={centerSize+4*spacing} width={width} startAngle={0} endAngle={rMinute} color={'black'} strokeWidth={strokeWidth}/> */}
-              <Tick cx={cx} cy={cy} r={centerSize+4*spacing} endAngle={rMinute} color={'black'} strokeWidth={strokeWidth/2} length={width}/>
+              <Tick cx={cx} cy={cy} r={centerSize+4*spacing} endAngle={rMinute} color={this.props.color} strokeWidth={strokeWidth/2} length={width}/>
             </g>
           </svg>
         </div>
 
-        <h2>{this.state.date.getFullYear()}.{this.state.date.getMonth()}.{this.state.date.getDate()} {this.state.date.getHours()}:{this.state.date.getMinutes()}:{this.state.date.getSeconds()}</h2>
+        <h2 style={{color: this.props.color}}>{this.state.date.getFullYear()}.{this.state.date.getMonth()}.{this.state.date.getDate()} {this.state.date.getHours()}:{this.state.date.getMinutes()}:{this.state.date.getSeconds()}</h2>
       </div>
     );
   }
