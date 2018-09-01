@@ -116,7 +116,7 @@ class Clock extends Component {
     if (hours12 > 12) {
       hours12 -= 12
     }
-    var timeString = ("00" + hours12).slice (-2) + ":" + ("00" + this.state.date.getMinutes()).slice(-2);
+    var timeString = hours12 + ":" + ("00" + this.state.date.getMinutes()).slice(-2);
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     return (
