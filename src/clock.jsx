@@ -4,6 +4,7 @@ var SunCalc = require('suncalc'); // https://github.com/mourner/suncalc
 
 // NOTE: this does not account for a leap year.
 var nDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+var bgColor = "rgb(33, 44, 64)"
 
 class CircleSegment extends Component {
   render () {
@@ -244,17 +245,17 @@ class Clock extends Component {
               <CircleSegment cx={cx} cy={cy} r={centerSize+0*spacing} width={width} startAngle={0} endAngle={rYear} color={this.props.color} strokeWidth={strokeWidth}/>
 
               {/* per-month */}
-              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthNewMoon} color={this.props.color} strokeWidth={strokeWidth} fill={null}/>
-              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} color={this.props.color} strokeWidth={strokeWidth} fill={null}/>
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthNewMoon} color={this.props.color} strokeWidth={strokeWidth} fill={bgColor}/>
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} color={this.props.color} strokeWidth={strokeWidth} fill={bgColor}/>
               <HalfCircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} leftHalf={true} color={this.props.color}/>
               <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFullMoon} color={this.props.color} strokeWidth={strokeWidth} fill={this.props.color}/>
-              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthThirdQuarterMoon} color={this.props.color} strokeWidth={strokeWidth} fill={null}/>
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthThirdQuarterMoon} color={this.props.color} strokeWidth={strokeWidth} fill={bgColor}/>
               <HalfCircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthThirdQuarterMoon} leftHalf={false} color={this.props.color}/>
 
               <CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={width} startAngle={0} endAngle={rMonth} color={this.props.color} strokeWidth={strokeWidth}/>
 
               {/* per-day (hour) */}
-              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunrise} color={this.props.color} strokeWidth={strokeWidth} fill={null}/> : null}
+              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunrise} color={this.props.color} strokeWidth={strokeWidth} fill={bgColor}/> : null}
               {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunset} color={this.props.color} strokeWidth={strokeWidth} fill={this.props.color}/> : null}
               <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={rDay} color={this.props.color}/>
 
