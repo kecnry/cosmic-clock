@@ -84,10 +84,52 @@ class Tick extends Component {
   }
 }
 
+class CircleMarker extends Component {
+  render () {
+    var endAngle = this.props.endAngle * 2 * Math.PI;
+
+    var x = this.props.cx + this.props.r * Math.sin(endAngle);
+    var y = this.props.cy - this.props.r * Math.cos(endAngle);
+
+    var radius = this.props.width/2
+
+    return (
+      <circle cx={x} cy={y} r={radius} stroke={this.props.color} strokeWidth={this.props.strokeWidth} fill={this.props.fill} />
+    )
+  }
+}
+
+class HalfCircleMarker extends Component {
+  render () {
+    var endAngle = this.props.endAngle * 2 * Math.PI;
+
+    var x = this.props.cx + this.props.r * Math.sin(endAngle);
+    var y = this.props.cy - this.props.r * Math.cos(endAngle);
+
+    var radius = this.props.width/2
+
+    if (this.props.leftHalf) {
+      var direction = 0
+    } else {
+      direction = 1
+    }
+
+    var d = ["M", x, y,
+             "L", x+radius*Math.sin(endAngle), y-radius*Math.cos(endAngle),
+             "A", radius, radius, 0, 0, direction, x-radius*Math.sin(endAngle), y+radius*Math.cos(endAngle)
+             ].join(" ");
+
+    return (
+      <path d={d} stroke={null} fill={this.props.color} />
+    )
+  }
+}
+
 class Clock extends Component {
   state = {
     date: new Date(),
     sunTimes: null,
+    moonPhase: null,
   }
 
   computeSunTimes = () => {
@@ -98,6 +140,11 @@ class Clock extends Component {
       console.log("computeSunTimes NO LOCATION");
       return(null);
     }
+  }
+
+  computeMoonPhase = () => {
+    console.log("computeMoonPhase ");
+    return(SunCalc.getMoonIllumination(new Date()).phase);
   }
 
   componentDidMount() {
@@ -114,9 +161,10 @@ class Clock extends Component {
         1000
     );
     setInterval(
-      () => this.setState({sunTimes: this.computeSunTimes()}),
+      () => this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()}),
       1000*60*60*24
     );
+    this.setState({moonPhase: this.computeMoonPhase()});
 
   }
 
@@ -148,6 +196,18 @@ class Clock extends Component {
 
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
+    if (this.state.sunTimes) {
+      var rDaySunrise = (this.state.sunTimes.sunrise.getHours() + this.state.sunTimes.sunrise.getMinutes()/60)/24;
+      var rDaySunset = (this.state.sunTimes.sunset.getHours() + this.state.sunTimes.sunset.getMinutes()/60)/24;
+    }
+
+    var rMonthNewMoon = rMonth - this.state.moonPhase
+    var rMonthFirstQuarterMoon = rMonthNewMoon + 0.25
+    var rMonthFullMoon = rMonthNewMoon + 0.5
+    var rMonthThirdQuarterMoon = rMonthNewMoon + 0.75
+
+    console.log(rDaySunrise);
+
     // console.log(this.state.sunTimes.sunrise);
     // console.log(this.computeSunTimes().sunrise);
 
@@ -160,11 +220,19 @@ class Clock extends Component {
               <CircleSegment cx={cx} cy={cy} r={centerSize+0*spacing} width={width} startAngle={0} endAngle={rYear} color={this.props.color} strokeWidth={strokeWidth}/>
 
               {/* per-month */}
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthNewMoon} color={this.props.color} strokeWidth={strokeWidth} fill={null}/>
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} color={this.props.color} strokeWidth={strokeWidth} fill={null}/>
+              <HalfCircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} leftHalf={true} color={this.props.color}/>
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFullMoon} color={this.props.color} strokeWidth={strokeWidth} fill={this.props.color}/>
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthThirdQuarterMoon} color={this.props.color} strokeWidth={strokeWidth} fill={null}/>
+              <HalfCircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthThirdQuarterMoon} leftHalf={false} color={this.props.color}/>
+
               <CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={width} startAngle={0} endAngle={rMonth} color={this.props.color} strokeWidth={strokeWidth}/>
 
               {/* per-day (hour) */}
+              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunrise} color={this.props.color} strokeWidth={strokeWidth} fill={null}/> : null}
+              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunset} color={this.props.color} strokeWidth={strokeWidth} fill={this.props.color}/> : null}
               <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={rDay} color={this.props.color}/>
-              {/* <CircleMarker cx={cx} cy={cy} color={this.props.color}/> */}
 
               {/* per-hour (minute) */}
               <CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={width} startAngle={0} endAngle={rHour} color={this.props.color}/>
@@ -177,6 +245,7 @@ class Clock extends Component {
 
         <h2 style={{color: this.props.color}}>{this.state.date.toLocaleTimeString()}<br/>{dateString}</h2>
         <p style={{color: this.props.color}}>Sunrise: {this.state.sunTimes ? this.state.sunTimes.sunrise.toLocaleTimeString() : "waiting for location"} | Sunset: {this.state.sunTimes ? this.state.sunTimes.sunset.toLocaleTimeString() : "waiting for location"}</p>
+        <p style={{color: this.props.color}}>Moonphase: {this.state.moonPhase}</p>
       </div>
     );
   }
