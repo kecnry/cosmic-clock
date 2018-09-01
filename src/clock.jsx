@@ -144,8 +144,8 @@ class Clock extends Component {
               <CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={width} startAngle={0} endAngle={rMonth} color={this.props.color} strokeWidth={strokeWidth}/>
 
               {/* per-day (hour) */}
-              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunrise} color={this.props.color} strokeWidth={strokeWidth} fill={bgColor}/> : null}
-              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunset} color={this.props.color} strokeWidth={strokeWidth} fill={this.props.color}/> : null}
+              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunrise} color={this.props.color} strokeWidth={strokeWidth} fill={this.props.color}/> : null}
+              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunset} color={this.props.color} strokeWidth={strokeWidth} fill={bgColor}/> : null}
               <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={rDay} color={this.props.color}/>
 
               {/* per-hour (minute) */}
