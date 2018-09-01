@@ -1,6 +1,10 @@
 import React, { Component } from 'react';
 import './App.css';
 
+
+// NOTE: this does not account for a leap year.
+var nDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
 export default class App extends Component {
   render() {
     return (
@@ -15,8 +19,8 @@ class CircleSegment extends Component {
   render () {
 
     // see https://codepen.io/smlsvnssn/pen/FolaA/
-    var startAngle = this.props.startAngle * Math.PI / 180;
-    var endAngle = this.props.endAngle * Math.PI / 180;
+    var startAngle = this.props.startAngle * 2 * Math.PI;
+    var endAngle = this.props.endAngle * 2 * Math.PI;
 
     // console.log("startAngle: "+startAngle+" endAngle: "+endAngle);
 
@@ -67,6 +71,29 @@ class CircleSegment extends Component {
   }
 }
 
+class Tick extends Component {
+  render () {
+
+    var endAngle = this.props.endAngle * 2 * Math.PI;
+    var strokeWidthInner = this.props.length/2;
+    var strokeWidth = this.props.strokeWidth;
+
+    var r = this.props.r;
+    var x = this.props.cx;
+    var y= this.props.cy;
+
+    var d = ["M", x+(r-strokeWidthInner-strokeWidth/2)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r-strokeWidthInner-strokeWidth/2)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
+             "L", x+(r+strokeWidthInner-strokeWidth/2)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
+
+
+            ].join(" ");
+
+    return (
+      <path d={d} stroke={this.props.color} strokeWidth={this.props.strokeWidth} fill={"none"} />
+    )
+  }
+}
+
 class Clock extends Component {
   state = {
     date: new Date(),
@@ -80,26 +107,55 @@ class Clock extends Component {
   }
 
   render() {
+
+    // var milliseconds = this.state.date.getMilliseconds();
+    var milliseconds = 0;  // use actual milliseconds if interval above is < 1000, otherwise override to 0
+    var seconds = this.state.date.getSeconds() + milliseconds/1000;
+    var rMinute = seconds/60;
+    var minutes = this.state.date.getMinutes() + rMinute;
+    var rHour = minutes/60;
+    var hours = this.state.date.getHours() + rHour;
+    var rDay = hours/24;
+    var days = this.state.date.getDate() + rDay;
+    var month = this.state.date.getMonth()
+    var rMonth = (days - 1) / nDays[month-1];
+    var daysTotal = rDay;
+    for (var i=1; i <= month; i++) {
+        daysTotal += nDays[month-1]
+    }
+    var rYear = daysTotal/365;
+
     var cx = this.props.size;
     var cy = this.props.size;
-    var width = this.props.size/10
+    var width = this.props.size/12
     var strokeWidth = this.props.size/50
     var centerSize = this.props.size/3
-    var spacing = this.props.size/6
+    var spacing = this.props.size/8
     return (
       <div>
         <div style={{margin: "auto"}}>
           <svg width={this.props.size*2} height={this.props.size*2}>
             <g>
-              <CircleSegment cx={cx} cy={cy} r={centerSize+0*spacing} width={width} startAngle={0} endAngle={260} color={'black'} strokeWidth={strokeWidth}/>
-              <CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={width} startAngle={0} endAngle={300} color={'black'} strokeWidth={strokeWidth}/>
-              <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={190} color={'black'}/>
-              <CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={width} startAngle={0} endAngle={32} color={'black'}/>
+              {/* per-year */}
+              <CircleSegment cx={cx} cy={cy} r={centerSize+0*spacing} width={width} startAngle={0} endAngle={rYear} color={'black'} strokeWidth={strokeWidth}/>
+
+              {/* per-month */}
+              <CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={width} startAngle={0} endAngle={rMonth} color={'black'} strokeWidth={strokeWidth}/>
+
+              {/* per-day (hour) */}
+              <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={rDay} color={'black'}/>
+
+              {/* per-hour (minute) */}
+              <CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={width} startAngle={0} endAngle={rHour} color={'black'}/>
+
+              {/* per-minute (second) */}
+              {/* <CircleSegment cx={cx} cy={cy} r={centerSize+4*spacing} width={width} startAngle={0} endAngle={rMinute} color={'black'} strokeWidth={strokeWidth}/> */}
+              <Tick cx={cx} cy={cy} r={centerSize+4*spacing} endAngle={rMinute} color={'black'} strokeWidth={strokeWidth/2} length={width}/>
             </g>
           </svg>
         </div>
 
-        <h2>{1900+this.state.date.getYear()}.{this.state.date.getMonth()}.{this.state.date.getDate()} {this.state.date.getHours()}:{this.state.date.getMinutes()}:{this.state.date.getSeconds()}</h2>
+        <h2>{this.state.date.getFullYear()}.{this.state.date.getMonth()}.{this.state.date.getDate()} {this.state.date.getHours()}:{this.state.date.getMinutes()}:{this.state.date.getSeconds()}</h2>
       </div>
     );
   }
