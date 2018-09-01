@@ -30,6 +30,8 @@ to create a local webserver running the site.
 
 ## Deploying
 
+NOTE: if forking and deploying your own version, please replace the Google API key with your own.  See [these instructions](https://www.npmjs.com/package/react-geosuggest).
+
 ### GitHub pages
 
 In the root directory, issue:
@@ -43,11 +45,9 @@ will build the website and commit and push to the `gh-pages` branch.  It may tak
 a few minutes before those changes then go live.
 
 
-To serve to a separate URL, edit the entry in [CNAME](./public/CNAME), the value of homepage in [package.json](./package.json), and follow the [github instructions](https://help.github.com/articles/using-a-custom-domain-with-github-pages/) to use a custom domain for pointing the DNS to github pages. 
+To serve to a separate URL, edit the entry in [CNAME](./public/CNAME), the value of homepage in [package.json](./package.json), and follow the [github instructions](https://help.github.com/articles/using-a-custom-domain-with-github-pages/) to use a custom domain for pointing the DNS to github pages.
 
 
 ## React
 
 See the [React README](README_REACT.md) for more information.
-
-

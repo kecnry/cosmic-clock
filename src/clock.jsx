@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import {CircleSegment, Tick, CircleMarker, HalfCircleMarker} from './clockComponents'
 import {geolocated} from 'react-geolocated'; // https://www.npmjs.com/package/react-geolocated
-import DateTimePicker from 'react-datetime-picker'; // https://github.com/wojtekmaj/react-datetime-picker
 var SunCalc = require('suncalc'); // https://github.com/mourner/suncalc
 
 // NOTE: this does not account for a leap year.
@@ -12,14 +11,15 @@ var bgColor = "rgb(33, 44, 64)"
 class Clock extends Component {
   state = {
     date: new Date(),
+    location: null,
     sunTimes: null,
     moonPhase: null,
   }
 
   computeSunTimes = () => {
-    if (this.props.coords) {
-      console.log("computeSunTimes at location: "+this.props.coords.latitude + "   " + this.props.coords.longitude);
-      return(SunCalc.getTimes(this.state.date, this.props.coords.latitude, this.props.coords.longitude));
+    if (this.state.location) {
+      console.log("computeSunTimes at location: "+this.state.location.lat + "   " + this.state.location.long);
+      return(SunCalc.getTimes(this.state.date, this.state.location.lat, this.state.location.long));
     } else {
       console.log("computeSunTimes NO LOCATION");
       return(null);
@@ -34,12 +34,25 @@ class Clock extends Component {
   componentDidMount() {
     setInterval(
       () => {
-          this.setState({ date: new Date()});
-          if (! this.state.sunTimes) {
+          this.setState({date: this.props.date || new Date()});
+
+          if (this.props.location && this.props.location.label) {
+            // then read from the user-provided locatoin
+            var location = {lat: this.props.location.location.lat, long: this.props.location.location.lng}
+          } else if (this.props.coords) {
+            // then read from the browser location
+            var location = {lat: this.props.coords.latitude, long: this.props.coords.longitude}
+          } else {
+            // then no location available
+            var location = null
+          }
+          if (!this.state.location || (location && (location.long != this.state.location.long || location.lat != this.state.location.lat || ! this.state.sunTimes))) {
             // sunTimes will fail until location is available, but once it is
             // and sunTimes is set, we don't need to set until the next day
             // which the other interval will cover
+            this.setState({location: location});
             this.setState({sunTimes: this.computeSunTimes()});
+
           }
         },
         1000
@@ -106,15 +119,8 @@ class Clock extends Component {
     var timeString = ("00" + hours12).slice (-2) + ":" + ("00" + this.state.date.getMinutes()).slice(-2);
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-
-
-    console.log(rDaySunrise);
-
-    // console.log(this.state.sunTimes.sunrise);
-    // console.log(this.computeSunTimes().sunrise);
-
     return (
-      <div>
+      <div style={{paddingTop:50}}>
         <div>
           <svg width={this.props.size*2} height={this.props.size*2}>
             <g>
