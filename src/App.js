@@ -47,10 +47,11 @@ export default class App extends Component {
   render() {
     document.body.style.backgroundColor = this.state.bgColor;
 
-    var size = 300;
-    if (0.8 * this.state.windowWidth/2 < size) {
-      size = 0.8 * this.state.windowWidth/2
+    var size = 0.8 * this.state.windowWidth/2
+    if (this.state.windowHeight/2 - 125 < size) {
+      size = this.state.windowHeight/2 - 125
     }
+
     console.log("windowWidth: "+ this.state.windowWidth + "   " + window.innerWidth+ "   size: "+ size);
 
 
