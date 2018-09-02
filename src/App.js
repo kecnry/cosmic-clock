@@ -11,8 +11,8 @@ import './App.css';
 
 export default class App extends Component {
   state = {
-    windowWidth: 10000,
-    windowHeight: 10000,
+    windowWidth: window.innerWidth,
+    windowHeight: window.innerHeight,
     bgColor: '#212c40',
     fgColor: '#ffffff',
     showSettings: false,
@@ -34,7 +34,6 @@ export default class App extends Component {
     }
   }
   componentDidMount() {
-    this.updateWindowDimensions();
     window.addEventListener('resize', this.updateWindowDimensions);
   }
 
