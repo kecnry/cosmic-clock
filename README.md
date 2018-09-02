@@ -30,7 +30,7 @@ to create a local webserver running the site.
 
 ## Deploying
 
-NOTE: if forking and deploying your own version, please replace the Google API key with your own.  See [these instructions](https://www.npmjs.com/package/react-geosuggest).
+NOTE: if forking and deploying your own version, please replace the Google API key with your own (see [these instructions](https://www.npmjs.com/package/react-geosuggest)) and the DarkSky API key in clock.jsx.
 
 ### GitHub pages
 

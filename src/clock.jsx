@@ -1,10 +1,13 @@
 import React, { Component } from 'react';
 import {CircleSegment, Tick, CircleMarker, HalfCircleMarker} from './clockComponents'
 import {geolocated} from 'react-geolocated'; // https://www.npmjs.com/package/react-geolocated
+import DarkSkyApi from 'dark-sky-api'; // https://www.npmjs.com/package/dark-sky-api
 var SunCalc = require('suncalc'); // https://github.com/mourner/suncalc
 
 // NOTE: this does not account for a leap year.
 var nDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+
+DarkSkyApi.apiKey = '796616a5ef888b16148b7f659fba5725';
 
 class Clock extends Component {
   state = {
@@ -12,6 +15,7 @@ class Clock extends Component {
     location: null,
     sunTimes: null,
     moonPhase: null,
+    weather: null,
   }
 
   computeSunTimes = () => {
@@ -27,6 +31,11 @@ class Clock extends Component {
   computeMoonPhase = () => {
     console.log("computeMoonPhase ");
     return(SunCalc.getMoonIllumination(this.state.date).phase);
+  }
+
+  updateWeather = () => {
+    DarkSkyApi.loadCurrent()
+      .then(result => this.setState({weather: result}));
   }
 
   componentDidMount() {
@@ -59,7 +68,12 @@ class Clock extends Component {
       () => this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()}),
       1000*60*60*24
     );
+    setInterval(
+      () => this.updateWeather(),
+      1000*60*60
+    )
     this.setState({moonPhase: this.computeMoonPhase()});
+    this.updateWeather();
 
   }
 
@@ -108,6 +122,7 @@ class Clock extends Component {
     var width = this.props.size/12
     var strokeWidth = this.props.size/100
     var centerSize = this.props.size/3
+    var weatherIconSize = 0.8*centerSize
     var spacing = this.props.size/6.5
 
     var hours12 = this.state.date.getHours();
@@ -117,8 +132,16 @@ class Clock extends Component {
     var timeString = hours12 + ":" + ("00" + this.state.date.getMinutes()).slice(-2);
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
+    var weatherIconClass = "wi wi-forecast-io-"
+    if (this.state.weather) {
+      weatherIconClass += this.state.weather.icon
+    }
+
     return (
       <div style={{paddingTop:50}}>
+        {/* weather */}
+        <td style={{textAlign: 'center'}}><i className={weatherIconClass} style={{color: this.props.fgColor, fontSize: weatherIconSize, position: 'fixed', top: this.props.size+50-weatherIconSize/2, width: '100%', display: 'inline-block'}}/></td>
+
         <div>
           <svg width={this.props.size*2} height={this.props.size*2}>
             <g>
