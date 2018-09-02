@@ -56,7 +56,7 @@ export default class App extends Component {
 
     return (
       <div className="App">
-        <Settings showSettings={this.state.showSettings} date={this.state.date} />
+        <Settings showSettings={this.state.showSettings} date={this.state.date} onChange={this.onChange} />
         <ColorSettings showSettings={this.state.showColorSettings} bgColor={this.state.bgColor} fgColor={this.state.fgColor} onChange={this.onChange} />
 
         <ToggleButton onClick={this.toggleSettings} style={{position: "absolute", bottom: "25px", right: "25px"}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-cog'}/>
