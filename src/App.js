@@ -84,8 +84,8 @@ export default class App extends Component {
 
     return (
       <div className="App">
-        <Info showInfo={this.state.showInfo} onChange={this.onChange} />
-        <Settings showSettings={this.state.showSettings} date={this.state.date} onChange={this.onChange} />
+        <Info showInfo={this.state.showInfo} bgColor={this.state.bgColor} fgColor={this.state.fgColor} onChange={this.onChange} />
+        <Settings showSettings={this.state.showSettings} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} onChange={this.onChange} />
         <ColorSettings showSettings={this.state.showColorSettings} bgColor={this.state.bgColor} fgColor={this.state.fgColor} onChange={this.onChange} />
 
         <div style={{position: "absolute", top: "2%", right: "2%"}}>
@@ -125,16 +125,16 @@ class Info extends Component {
       display = 'none'
     }
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(255, 255, 255, 0.85)", display: display, zIndex: 999}}>
-      <ToggleButton onClick={this.onClose} style={{position: "fixed", top: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: this.props.bgColor, display: display, zIndex: 999}}>
+      <ToggleButton onClick={this.onClose} style={{position: "fixed", top: "2%", right: "2%"}} iconColor={this.props.fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
-            Designed and Written by <a href="https://keconroy.com" target="_blank">Kyle Conroy</a>
-            as an <a href="http://github.com/kecnry/cosmic-clock" target="_blank">open-source project on GitHub</a>
+            <p style={{color: this.props.fgColor}}>Designed and Written by <a href="https://keconroy.com" target="_blank">Kyle Conroy</a><br/>
+            as an <a href="http://github.com/kecnry/cosmic-clock" target="_blank">open-source project on GitHub</a></p>
           </div>
           <div className='SettingsSection'>
-            Weather <a href="https://darksky.net/poweredby/" target="_blank">Powered by DarkSky</a>
+            <p style={{color: this.props.fgColor}}>Weather <a href="https://darksky.net/poweredby/" target="_blank">Powered by DarkSky</a></p>
           </div>
         </div>
       </div>
@@ -153,15 +153,17 @@ class Settings extends Component {
       display = 'none'
     }
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(255, 255, 255, 0.85)", display: display, zIndex: 999}}>
-      <ToggleButton onClick={this.onClose} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: this.props.bgColor, display: display, zIndex: 999}}>
+      <ToggleButton onClick={this.onClose} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={this.props.fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
-            Date and Time<br/><DateTimePicker onChange={this.onChangeDateTime} value={this.props.date}/>
+            <p style={{color: this.props.fgColor}}>Date and Time</p><br/>
+            <DateTimePicker onChange={this.onChangeDateTime} value={this.props.date}/>
           </div>
           <div className='SettingsSection'>
-            Location<br/><Geosuggest onSuggestSelect={this.onChangeLocation}/>
+            <p style={{color: this.props.fgColor}}>Location</p><br/>
+            <Geosuggest onSuggestSelect={this.onChangeLocation}/>
           </div>
         </div>
       </div>
@@ -179,15 +181,21 @@ class ColorSettings extends Component {
       display = 'none'
     }
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(255, 255, 255, 0.85)", display: display, zIndex: 999}}>
-        <ToggleButton onClick={this.onClose} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: this.props.bgColor, display: display, zIndex: 999}}>
+        <ToggleButton onClick={this.onClose} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={this.props.fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
-            Background Color<br/><div style={{margin: 'auto', width: '225px'}}><ChromePicker onChangeComplete={this.onChangebgColor} color={this.props.bgColor}/></div>
+            <p style={{color: this.props.fgColor}}>Background Color</p><br/>
+            <div style={{margin: 'auto', width: '225px'}}>
+              <ChromePicker onChangeComplete={this.onChangebgColor} color={this.props.bgColor}/>
+            </div>
           </div>
           <div className='SettingsSection'>
-            Foreground Color<br/><div style={{margin: 'auto', width: '225px'}}><ChromePicker onChangeComplete={this.onChangefgColor} color={this.props.fgColor}/></div>
+            <p style={{color: this.props.fgColor}}>Foreground Color</p><br/>
+            <div style={{margin: 'auto', width: '225px'}}>
+              <ChromePicker onChangeComplete={this.onChangefgColor} color={this.props.fgColor}/>
+            </div>
           </div>
         </div>
       </div>

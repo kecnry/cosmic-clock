@@ -188,7 +188,7 @@ class Clock extends Component {
       centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28)];
     } else {
       // centerIconOnClick = this.toggleForecast
-      centerIconClass += "toggleForecast wi-forecast-io-"+this.state.weather.currently.icon;
+      centerIconClass += "wi-forecast-io-"+this.state.weather.currently.icon;
     }
 
     var forecastHour = [];
