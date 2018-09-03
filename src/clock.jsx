@@ -207,7 +207,7 @@ class Clock extends Component {
           precipIntensity = this.state.weather.minutely.data[min].precipIntensity
           if (precipIntensity > 0.01) {
             color = getPrecipColor(precipIntensity);
-            forecastHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width} startAngle={rHour+min/60} endAngle={rHour+(min+1.01)/60} color={color}/>)
+            forecastHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width} startAngle={rHour+min/60} endAngle={rHour+(min+1.01)/60} color={color} opacity={1-(min-45)/15}/>)
           }
         }
       }
@@ -216,7 +216,7 @@ class Clock extends Component {
         precipIntensity = this.state.weather.hourly.data[hour].precipIntensity
         if (precipIntensity > 0.01) {
           color = getPrecipColor(precipIntensity);
-          forecastDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={color}/>)
+          forecastDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={color} opacity={1-(hour-18)/6}/>)
         }
       }
 
@@ -224,10 +224,11 @@ class Clock extends Component {
         precipIntensity = this.state.weather.daily.data[day].precipIntensityMax
         if (precipIntensity > 0.05) {
           color = getPrecipColor(precipIntensity);
-          forecastMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={color}/>)
+          forecastMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={color} opacity={1-(day-20)/10}/>)
         }
       }
     }
+    forecastMonth.push(<Tick cx={cx} cy={cy} r={centerSize+1*spacing} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={getPrecipColor(0)} strokeWidth={strokeWidth/2} length={1.7*width}/>)
 
 
     return (

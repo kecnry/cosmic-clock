@@ -53,7 +53,7 @@ export class CircleSegment extends Component {
     }
 
     return (
-      <path d={d} stroke={this.props.color} strokeWidth={strokeWidth} fill={"none"} />
+      <path d={d} stroke={this.props.color} strokeWidth={strokeWidth} fill={"none"} opacity={this.props.opacity} />
     )
   }
 }
