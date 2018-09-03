@@ -140,7 +140,7 @@ class Clock extends Component {
     return (
       <div style={{paddingTop:50}}>
         {/* weather */}
-        <td style={{textAlign: 'center'}}><i className={weatherIconClass} style={{color: this.props.fgColor, fontSize: weatherIconSize, position: 'fixed', top: this.props.size+50-weatherIconSize/2, width: '100%', display: 'inline-block'}}/></td>
+        <td style={{textAlign: 'center'}}><i className={weatherIconClass} style={{color: this.props.fgColor, fontSize: weatherIconSize, position: 'fixed', zIndex: -1, top: this.props.size+50-weatherIconSize/2, width: '100%', display: 'inline-block'}}/></td>
 
         <div>
           <svg width={this.props.size*2} height={this.props.size*2}>
