@@ -200,7 +200,7 @@ class Clock extends Component {
     var forecastMonth = [];
     var precipIntensity = null;
     var color
-    if (this.state.showForecast && this.state.weather) {
+    if (this.state.showForecast && this.state.weather && !this.props.date) {
       if ("minutely" in this.state.weather) {
         // not all locations have minutely data
         for (var min=0; min < 60; min++) {
@@ -234,7 +234,7 @@ class Clock extends Component {
       <div style={{paddingTop:50}}>
         {/* weather */}
         <td style={{textAlign: 'center'}}>
-          {this.state.showForecast && this.state.weather ? <i className='fas fa-check' style={{color: this.props.fgColor, position: 'fixed', top: this.props.size+50, width: '100%', display: 'inline-block'}}></i> : null}
+          {this.state.showForecast && this.state.weather && !this.props.date ? <i className='fas fa-check' style={{color: this.props.fgColor, position: 'fixed', top: this.props.size+50, width: '100%', display: 'inline-block'}}></i> : null}
           <i className={centerIconClass} onClick={centerIconOnClick} style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}/>
         </td>
 
