@@ -43,7 +43,12 @@ class Clock extends Component {
   }
 
   updateWeather = () => {
-    DarkSkyApi.loadItAll('flags,alerts')
+    var location = null
+    if (this.state.location) {
+      location = {latitude: this.state.location.lat, longitude: this.state.location.long}
+    }
+
+    DarkSkyApi.loadItAll('flags,alerts', location)
       .then(result => this.setState({weather: result}));
   }
 
@@ -60,12 +65,13 @@ class Clock extends Component {
             // then no location available
             var location = null
           }
-          if (!this.state.location || (this.props.date !== this.state.date) || (location && (location.long !== this.state.location.long || location.lat !== this.state.location.lat || ! this.state.sunTimes))) {
+          if (!this.state.location || (location && (location.long !== this.state.location.long || location.lat !== this.state.location.lat || ! this.state.sunTimes))) {
             // sunTimes will fail until location is available, but once it is
             // and sunTimes is set, we don't need to set until the next day
             // which the other interval will cover
             this.setState({date: this.props.date || new Date(), location: location});
             this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()});
+            this.updateWeather();
 
           } else {
             this.setState({date: this.props.date || new Date()});
@@ -142,12 +148,11 @@ class Clock extends Component {
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     var centerIconClass = "wi "
-    if (this.props.location || this.props.date || !this.state.weather) {
+    if (this.props.date || !this.state.weather) {
       centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28)];
     } else {
       centerIconClass += "wi-forecast-io-"+this.state.weather.currently.icon;
     }
-    console.log("centerIconClass: "+centerIconClass)
 
 
     return (
