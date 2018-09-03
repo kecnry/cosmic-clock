@@ -6,6 +6,15 @@ var SunCalc = require('suncalc'); // https://github.com/mourner/suncalc
 
 // NOTE: this does not account for a leap year.
 var nDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+var moonIcon = ['new',
+                'waxing-crescent-1', 'waxing-crescent-2', 'waxing-crescent-3', 'waxing-crescent-4', 'waxing-crescent-5', 'waxing-crescent-6',
+                'first-quarter',
+                'waxing-gibbous-1', 'waxing-gibbous-2', 'waxing-gibbous-3', 'waxing-gibbous-4', 'waxing-gibbous-5', 'waxing-gibbous-6',
+                'full',
+                'waning-gibbous-1', 'waning-gibbous-2', 'waning-gibbous-3', 'waning-gibbous-4', 'waning-gibbous-5', 'waning-gibbous-6',
+                'third-quarter',
+                'waning-crescent-1', 'waning-crescent-2', 'waning-crescent-3', 'waning-crescent-4', 'waning-crescent-5', 'waning-crescent-6',
+                ]
 
 DarkSkyApi.apiKey = '796616a5ef888b16148b7f659fba5725';
 
@@ -29,20 +38,18 @@ class Clock extends Component {
   }
 
   computeMoonPhase = () => {
-    console.log("computeMoonPhase ");
+    console.log("computeMoonPhase at "+this.state.date);
     return(SunCalc.getMoonIllumination(this.state.date).phase);
   }
 
   updateWeather = () => {
-    DarkSkyApi.loadCurrent()
+    DarkSkyApi.loadItAll('flags,alerts')
       .then(result => this.setState({weather: result}));
   }
 
   componentDidMount() {
     setInterval(
       () => {
-          this.setState({date: this.props.date || new Date()});
-
           if (this.props.location && this.props.location.label) {
             // then read from the user-provided locatoin
             var location = {lat: this.props.location.location.lat, long: this.props.location.location.lng}
@@ -53,13 +60,15 @@ class Clock extends Component {
             // then no location available
             var location = null
           }
-          if (!this.state.location || (location && (location.long !== this.state.location.long || location.lat !== this.state.location.lat || ! this.state.sunTimes))) {
+          if (!this.state.location || (this.props.date !== this.state.date) || (location && (location.long !== this.state.location.long || location.lat !== this.state.location.lat || ! this.state.sunTimes))) {
             // sunTimes will fail until location is available, but once it is
             // and sunTimes is set, we don't need to set until the next day
             // which the other interval will cover
-            this.setState({location: location});
-            this.setState({sunTimes: this.computeSunTimes()});
+            this.setState({date: this.props.date || new Date(), location: location});
+            this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()});
 
+          } else {
+            this.setState({date: this.props.date || new Date()});
           }
         },
         1000
@@ -70,7 +79,7 @@ class Clock extends Component {
     );
     setInterval(
       () => this.updateWeather(),
-      1000*60*60
+      1000*60*5
     )
     this.setState({moonPhase: this.computeMoonPhase()});
     this.updateWeather();
@@ -122,7 +131,7 @@ class Clock extends Component {
     var width = this.props.size/12
     var strokeWidth = this.props.size/100
     var centerSize = this.props.size/3
-    var weatherIconSize = 0.8*centerSize
+    var centerIconSize = 0.8*centerSize
     var spacing = this.props.size/6.5
 
     var hours12 = this.state.date.getHours();
@@ -132,15 +141,19 @@ class Clock extends Component {
     var timeString = hours12 + ":" + ("00" + this.state.date.getMinutes()).slice(-2);
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    var weatherIconClass = "wi wi-forecast-io-"
-    if (this.state.weather) {
-      weatherIconClass += this.state.weather.icon
+    var centerIconClass = "wi "
+    if (this.props.location || this.props.date || !this.state.weather) {
+      centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28)];
+    } else {
+      centerIconClass += "wi-forecast-io-"+this.state.weather.currently.icon;
     }
+    console.log("centerIconClass: "+centerIconClass)
+
 
     return (
       <div style={{paddingTop:50}}>
         {/* weather */}
-        <td style={{textAlign: 'center'}}><i className={weatherIconClass} style={{color: this.props.fgColor, fontSize: weatherIconSize, position: 'fixed', zIndex: -1, top: this.props.size+50-weatherIconSize/2, width: '100%', display: 'inline-block'}}/></td>
+        <td style={{textAlign: 'center'}}><i className={centerIconClass} style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', zIndex: -1, top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}/></td>
 
         <div>
           <svg width={this.props.size*2} height={this.props.size*2}>
