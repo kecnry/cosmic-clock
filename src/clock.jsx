@@ -47,7 +47,6 @@ class Clock extends Component {
     sunTimes: null,
     moonPhase: null,
     weather: null,
-    pauseUpdates: false,
     showForecast: true,
   }
 
@@ -79,7 +78,7 @@ class Clock extends Component {
   componentDidMount() {
     setInterval(
       () => {
-          if (this.state.pauseUpdates) return
+          if (this.props.pauseUpdates) return
           if (this.props.location && this.props.location.label) {
             // then read from the user-provided locatoin
             var location = {lat: this.props.location.location.lat, long: this.props.location.location.lng}
@@ -106,14 +105,14 @@ class Clock extends Component {
     );
     setInterval(
       () => {
-        if (this.state.pauseUpdates) return
+        if (this.props.pauseUpdates) return
         this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()})
       },
       1000*60*60*24
     );
     setInterval(
       () => {
-        if (this.state.pauseUpdates) return
+        if (this.props.pauseUpdates) return
         this.updateWeather()
       },
       1000*60*5

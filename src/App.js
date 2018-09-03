@@ -6,6 +6,18 @@ import {ChromePicker} from 'react-color'; // https://github.com/casesandberg/rea
 import './App.css';
 
 
+// see https://developer.mozilla.org/en-US/docs/Web/API/Page_Visibility_API
+var hidden, visibilityChange;
+if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+  hidden = "hidden";
+  visibilityChange = "visibilitychange";
+} else if (typeof document.msHidden !== "undefined") {
+  hidden = "msHidden";
+  visibilityChange = "msvisibilitychange";
+} else if (typeof document.webkitHidden !== "undefined") {
+  hidden = "webkitHidden";
+  visibilityChange = "webkitvisibilitychange";
+}
 
 
 
@@ -13,6 +25,7 @@ export default class App extends Component {
   state = {
     windowWidth: window.innerWidth,
     windowHeight: window.innerHeight,
+    windowVisible: true,
     bgColor: '#212c40',
     fgColor: '#ffffff',
     showSettings: false,
@@ -29,14 +42,19 @@ export default class App extends Component {
   }
   componentDidMount() {
     window.addEventListener('resize', this.updateWindowDimensions);
+    window.addEventListener(visibilityChange, this.updateWindowVisibility);
   }
 
   componentWillUnmount() {
     window.removeEventListener('resize', this.updateWindowDimensions);
+    window.removeEventListener(visibilityChange, this.updateWindowVisibility);
   }
 
   updateWindowDimensions = () => {
     this.setState({ windowWidth: window.innerWidth, windowHeight: window.innerHeight });
+  }
+  updateWindowVisibility = () => {
+    this.setState({windowVisible: !document[hidden]});
   }
   render() {
     document.body.style.backgroundColor = this.state.bgColor;
@@ -59,7 +77,7 @@ export default class App extends Component {
           <ToggleButton onClick={this.toggleSettings} style={{paddingLeft: "10px"}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-cog'}/>
         </div>
 
-        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location}/>
+        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} pauseUpdates={!this.state.windowVisible}/>
 
       </div>
     );
