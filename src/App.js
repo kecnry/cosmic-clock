@@ -23,15 +23,9 @@ export default class App extends Component {
   onChange = settings => this.setState(settings)
   toggleSettings = () => {
     this.setState({showSettings: !this.state.showSettings})
-    if (this.state.showColorSettings) {
-      this.setState({showColorSettings: false})
-    }
   }
   toggleColorSettings = () => {
     this.setState({showColorSettings: !this.state.showColorSettings})
-    if (this.state.showSettings) {
-      this.setState({showSettings: false})
-    }
   }
   componentDidMount() {
     window.addEventListener('resize', this.updateWindowDimensions);
@@ -91,8 +85,8 @@ class Settings extends Component {
       display = 'none'
     }
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(224, 238, 255, 0.79)", display: display}}>
-      <ToggleButton onClick={this.onCloseSettings} style={{position: "absolute", top: "25px", left: "25px"}} iconColor={'black'} iconClass={'fas fa-3x fa-times'}/>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(255, 255, 255, 0.85)", display: display, zIndex: 999}}>
+      <ToggleButton onClick={this.onCloseSettings} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
@@ -117,8 +111,8 @@ class ColorSettings extends Component {
       display = 'none'
     }
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(224, 238, 255, 0.79)", display: display}}>
-      <ToggleButton onClick={this.onCloseSettings} style={{position: "absolute", top: "25px", left: "25px"}} iconColor={'black'} iconClass={'fas fa-3x fa-times'}/>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(255, 255, 255, 0.85)", display: display, zIndex: 999}}>
+        <ToggleButton onClick={this.onCloseSettings} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>

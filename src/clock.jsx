@@ -16,6 +16,16 @@ var moonIcon = ['new',
                 'waning-crescent-1', 'waning-crescent-2', 'waning-crescent-3', 'waning-crescent-4', 'waning-crescent-5', 'waning-crescent-6',
                 ]
 
+var getPrecipColor = function(precipIntensity) {
+  if (precipIntensity < 0.3) {
+    return 'green'
+  } else if (precipIntensity < 0.6) {
+    return 'yellow'
+  } else {
+    return 'red'
+  }
+}
+
 DarkSkyApi.apiKey = '796616a5ef888b16148b7f659fba5725';
 
 class Clock extends Component {
@@ -25,6 +35,8 @@ class Clock extends Component {
     sunTimes: null,
     moonPhase: null,
     weather: null,
+    pauseUpdates: false,
+    showForecast: false,
   }
 
   computeSunTimes = () => {
@@ -55,6 +67,7 @@ class Clock extends Component {
   componentDidMount() {
     setInterval(
       () => {
+          if (this.state.pauseUpdates) return
           if (this.props.location && this.props.location.label) {
             // then read from the user-provided locatoin
             var location = {lat: this.props.location.location.lat, long: this.props.location.location.lng}
@@ -80,16 +93,26 @@ class Clock extends Component {
         1000
     );
     setInterval(
-      () => this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()}),
+      () => {
+        if (this.state.pauseUpdates) return
+        this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()})
+      },
       1000*60*60*24
     );
     setInterval(
-      () => this.updateWeather(),
+      () => {
+        if (this.state.pauseUpdates) return
+        this.updateWeather()
+      },
       1000*60*5
     )
     this.setState({moonPhase: this.computeMoonPhase()});
     this.updateWeather();
 
+  }
+
+  toggleForecast = () => {
+    this.setState({showForecast: !this.state.showForecast})
   }
 
   render() {
@@ -148,17 +171,53 @@ class Clock extends Component {
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     var centerIconClass = "wi "
+    var centerIconOnClick = null
     if (this.props.date || !this.state.weather) {
       centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28)];
     } else {
-      centerIconClass += "wi-forecast-io-"+this.state.weather.currently.icon;
+      centerIconOnClick = this.toggleForecast
+      centerIconClass += "toggleForecast wi-forecast-io-"+this.state.weather.currently.icon;
+    }
+
+    var forecastHour = [];
+    var forecastDay = [];
+    var forecastMonth = [];
+    var precipIntensity = null;
+    var color
+    if (this.state.showForecast && this.state.weather) {
+      for (var min=0; min < 60; min++) {
+        precipIntensity = this.state.weather.minutely.data[min].precipIntensity
+        if (precipIntensity > 0.05) {
+          color = getPrecipColor(precipIntensity);
+          forecastHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width} startAngle={rHour+min/60} endAngle={rHour+(min+1)/60} color={color}/>)
+        }
+      }
+
+      for (var hour=0; hour < 24; hour++) {
+        precipIntensity = this.state.weather.hourly.data[hour].precipIntensityMax
+        if (precipIntensity > 0.05) {
+          color = getPrecipColor(precipIntensity);
+          forecastDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1)/24} color={color}/>)
+        }
+      }
+
+      for (var day=0; day <= 7; day++) {
+        precipIntensity = this.state.weather.daily.data[day].precipIntensityMax
+        if (precipIntensity > 0.05) {
+          color = getPrecipColor(precipIntensity);
+          forecastMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1)/nDays[month-1]} color={color}/>)
+        }
+      }
     }
 
 
     return (
       <div style={{paddingTop:50}}>
         {/* weather */}
-        <td style={{textAlign: 'center'}}><i className={centerIconClass} style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', zIndex: -1, top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}/></td>
+        <td style={{textAlign: 'center'}}>
+          {this.state.showForecast && this.state.weather ? <i className='fas fa-check' style={{color: this.props.fgColor, position: 'fixed', top: this.props.size+50, width: '100%', display: 'inline-block'}}></i> : null}
+          <i className={centerIconClass} onClick={centerIconOnClick} style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}/>
+        </td>
 
         <div>
           <svg width={this.props.size*2} height={this.props.size*2}>
@@ -173,6 +232,7 @@ class Clock extends Component {
               <CircleSegment cx={cx} cy={cy} r={centerSize+0*spacing} width={width} startAngle={0} endAngle={rYear} color={this.props.fgColor} strokeWidth={strokeWidth}/>
 
               {/* per-month */}
+              {forecastMonth}
               <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthNewMoon} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.bgColor}/>
               <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.bgColor}/>
               <HalfCircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} leftHalf={true} color={this.props.fgColor}/>
@@ -183,11 +243,13 @@ class Clock extends Component {
               <CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={width} startAngle={0} endAngle={rMonth} color={this.props.fgColor} strokeWidth={strokeWidth}/>
 
               {/* per-day (hour) */}
+              {forecastDay}
               {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunrise} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.fgColor}/> : null}
               {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunset} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.bgColor}/> : null}
               <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={rDay} color={this.props.fgColor}/>
 
               {/* per-hour (minute) */}
+              {forecastHour}
               <CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={width} startAngle={0} endAngle={rHour} color={this.props.fgColor}/>
 
               {/* per-minute (second) */}

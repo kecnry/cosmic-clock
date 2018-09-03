@@ -35,6 +35,10 @@
   cursor: pointer;
 }
 
+.toggleForecast:hover {
+  cursor: pointer;
+}
+
 .SettingsSection {
   padding-top: 10px;
 }
