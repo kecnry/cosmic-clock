@@ -213,7 +213,7 @@ class Clock extends Component {
       }
 
       for (var hour=0; hour < 24; hour++) {
-        precipIntensity = this.state.weather.hourly.data[hour].precipIntensityMax
+        precipIntensity = this.state.weather.hourly.data[hour].precipIntensity
         if (precipIntensity > 0.01) {
           color = getPrecipColor(precipIntensity);
           forecastDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={color}/>)
