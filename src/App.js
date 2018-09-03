@@ -173,13 +173,25 @@ class Info extends Component {
       display = 'none'
     }
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: this.props.bgColor, display: display, zIndex: 999}}>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: this.props.bgColor, display: display, zIndex: 999, overflowY: 'scroll'}}>
       <ToggleButton onClick={this.onClose} style={{position: "fixed", top: "2%", right: "2%"}} iconColor={this.props.fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
             <p style={{color: this.props.fgColor}}>Designed and Written by <a href="https://keconroy.com" target="_blank" rel="noopener noreferrer">Kyle Conroy</a><br/>
             as an <a href="http://github.com/kecnry/cosmic-clock" target="_blank" rel="noopener noreferrer">open-source project on GitHub</a></p>
+          </div>
+          <div className='SettingsSection'>
+            <p style={{color: this.props.fgColor, paddingLeft: '10px', paddingRight: '10px', maxWidth: '600px', margin: 'auto'}}>
+              <b>How to read:</b>the tick moving around the outside of the circle can be thought of as the second-hand of a clock.
+              Just inside that is a solid arc representing the minute-hand of a clock, or circular progress bar representing how much of the current hour has passed.
+              The inner solid arc tells how much of the current day has passed (so like an hour-hand, but representing a full 24 hours instead of 12).  On top of this arc are two icons: a solid and hollow circle representing the time of sunrise and sunset, respectively, for the current location.
+              The outer hollow arc tells how much of the current month has passed, with icons representing the (approximate) times in the current month of the quarter phases of the moon.
+              The inner hollow arc tells how much of the current year has passed, with the long ticks representing the solar solstices and equinoxes (roughly the beginning of each season) and the shorter ticks representing perihelion (around Jan 4) and aphelion (around June 4) when the Earth is closest and furthest from the sun in its orbit, respectively.
+              <br/><br/>
+              If weather is displayed (togglable in the bottom left) then the forecast for rain is overlayed with color representing intensitiy and width representing the chance of precipitation.  Clicking on any overlay will show the details of the expected precipitation.
+
+            </p>
           </div>
           <div className='SettingsSection'>
             <p style={{color: this.props.fgColor}}>Weather <a href="https://darksky.net/poweredby/" target="_blank" rel="noopener noreferrer">Powered by DarkSky</a></p>
@@ -201,7 +213,7 @@ class Settings extends Component {
       display = 'none'
     }
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: this.props.bgColor, display: display, zIndex: 999}}>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: this.props.bgColor, display: display, zIndex: 999, overflowY: 'scroll'}}>
       <ToggleButton onClick={this.onClose} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={this.props.fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
@@ -229,7 +241,7 @@ class ColorSettings extends Component {
       display = 'none'
     }
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: this.props.bgColor, display: display, zIndex: 999}}>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: this.props.bgColor, display: display, zIndex: 999, overflowY: 'scroll'}}>
         <ToggleButton onClick={this.onClose} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={this.props.fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
