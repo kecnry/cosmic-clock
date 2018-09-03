@@ -148,7 +148,9 @@ class Clock extends Component {
 
     if (this.state.sunTimes) {
       var rDaySunrise = (this.state.sunTimes.sunrise.getHours() + this.state.sunTimes.sunrise.getMinutes()/60)/24;
+      var sunriseTooltipText = 'sunrise today at '+this.state.sunTimes.sunrise.toLocaleTimeString();
       var rDaySunset = (this.state.sunTimes.sunset.getHours() + this.state.sunTimes.sunset.getMinutes()/60)/24;
+      var sunsetTooltipText = 'sunset today at '+this.state.sunTimes.sunset.toLocaleTimeString();
     }
 
     var rMonthNewMoon = rMonth - this.state.moonPhase;
@@ -199,32 +201,40 @@ class Clock extends Component {
     var forecastDay = [];
     var forecastMonth = [];
     var precipIntensity = null;
+    var precipProbability = null;
+    var tooltipText = ''
     var color
     if (this.props.showForecast && this.state.weather && !this.props.date) {
       if ("minutely" in this.state.weather) {
         // not all locations have minutely data
         for (var min=0; min < 60; min++) {
           precipIntensity = this.state.weather.minutely.data[min].precipIntensity
-          if (precipIntensity > 0.01) {
+          precipProbability = this.state.weather.minutely.data[min].precipProbability
+          if (precipIntensity > 0.01 && precipProbability > 0.05) {
             color = getPrecipColor(precipIntensity);
-            forecastHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width} startAngle={rHour+min/60} endAngle={rHour+(min+1.01)/60} color={color} opacity={1-(min-45)/15}/>)
+            tooltipText = parseInt(precipProbability*100)+'% chance of precipitation in '+min+' minutes with '+parseInt(precipIntensity*100)+'% intensity.'
+            forecastHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={(1+precipProbability)*width} startAngle={rHour+min/60} endAngle={rHour+(min+1.01)/60} color={color} opacity={1-(min-45)/15} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
           }
         }
       }
 
       for (var hour=0; hour < 24; hour++) {
         precipIntensity = this.state.weather.hourly.data[hour].precipIntensity
-        if (precipIntensity > 0.01) {
+        precipProbability = this.state.weather.hourly.data[hour].precipProbability
+        if (precipIntensity > 0.01 && precipProbability > 0.05) {
           color = getPrecipColor(precipIntensity);
-          forecastDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={color} opacity={1-(hour-18)/6}/>)
+          tooltipText = parseInt(precipProbability*100)+'% chance of precipitation in '+hour+' hours with '+parseInt(precipIntensity*100)+'% intensity.'
+          forecastDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={(1+precipProbability)*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={color} opacity={1-(hour-18)/6} tooltipText={tooltipText} onClick={this.props.displayTooltip} />)
         }
       }
 
       for (var day=0; day <= 7; day++) {
         precipIntensity = this.state.weather.daily.data[day].precipIntensityMax
-        if (precipIntensity > 0.05) {
+        precipProbability = this.state.weather.daily.data[day].precipProbability
+        if (precipIntensity > 0.05 && precipProbability > 0.1) {
           color = getPrecipColor(precipIntensity);
-          forecastMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={color} opacity={1-(day-20)/10}/>)
+          tooltipText = parseInt(precipProbability*100)+'% chance of precipitation in '+day+' days with '+parseInt(precipIntensity*100)+'% maximum intensity.'
+          forecastMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={(1+precipProbability)*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={color} opacity={1-(day-20)/10} tooltipText={tooltipText} onClick={this.props.displayTooltip} />)
         }
       }
     }
@@ -252,20 +262,20 @@ class Clock extends Component {
 
               {/* per-month */}
               {forecastMonth}
-              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthNewMoon} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.bgColor}/>
-              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.bgColor}/>
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthNewMoon} color={this.props.fgColor} strokeWidth={strokeWidth} fill={'transparent'}/>
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} color={this.props.fgColor} strokeWidth={strokeWidth} fill={'transparent'}/>
               <HalfCircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFirstQuarterMoon} leftHalf={true} color={this.props.fgColor}/>
               <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthFullMoon} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.fgColor}/>
-              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthThirdQuarterMoon} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.bgColor}/>
+              <CircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthThirdQuarterMoon} color={this.props.fgColor} strokeWidth={strokeWidth} fill={'transparent'}/>
               <HalfCircleMarker cx={cx} cy={cy} r={centerSize+1*spacing} width={0.9*width} endAngle={rMonthThirdQuarterMoon} leftHalf={false} color={this.props.fgColor}/>
 
               <CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={width} startAngle={0} endAngle={rMonth} color={this.props.fgColor} strokeWidth={strokeWidth}/>
 
               {/* per-day (hour) */}
               {forecastDay}
-              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunrise} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.fgColor}/> : null}
-              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunset} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.bgColor}/> : null}
               <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={rDay} color={this.props.fgColor}/>
+              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunrise} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.fgColor} tooltipText={sunriseTooltipText} onClick={this.props.displayTooltip}/> : null}
+              {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunset} color={this.props.fgColor} strokeWidth={strokeWidth} fill={'transparent'} tooltipText={sunsetTooltipText} onClick={this.props.displayTooltip}/> : null}
 
               {/* per-hour (minute) */}
               {forecastHour}

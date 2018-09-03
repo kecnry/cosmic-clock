@@ -2,6 +2,9 @@ import React, { Component } from 'react';
 
 
 export class CircleSegment extends Component {
+  onClick = () => {
+    this.props.onClick(this.props.tooltipText)
+  }
   render () {
 
     // see https://codepen.io/smlsvnssn/pen/FolaA/
@@ -52,13 +55,23 @@ export class CircleSegment extends Component {
 
     }
 
+    var className = ''
+    if (this.props.onClick && this.props.tooltipText) {
+      className += 'clickable'
+    }
+
     return (
-      <path d={d} stroke={this.props.color} strokeWidth={strokeWidth} fill={"none"} opacity={this.props.opacity} />
+      <g className={className} onClick={this.onClick}>
+        <path d={d} stroke={this.props.color} strokeWidth={strokeWidth} fill={"none"} opacity={this.props.opacity} />
+      </g>
     )
   }
 }
 
 export class Tick extends Component {
+  onClick = () => {
+    this.props.onClick(this.props.tooltipText)
+  }
   render () {
 
     var endAngle = this.props.endAngle * 2 * Math.PI;
@@ -75,13 +88,23 @@ export class Tick extends Component {
 
             ].join(" ");
 
+    var className = ''
+    if (this.props.onClick && this.props.tooltipText) {
+      className += 'clickable'
+    }
+
     return (
-      <path d={d} stroke={this.props.color} strokeWidth={this.props.strokeWidth} fill={"none"} />
+      <g className={className} onClick={this.onClick}>
+        <path d={d} stroke={this.props.color} strokeWidth={this.props.strokeWidth} fill={"none"} />
+      </g>
     )
   }
 }
 
 export class CircleMarker extends Component {
+  onClick = () => {
+    this.props.onClick(this.props.tooltipText)
+  }
   render () {
     var endAngle = this.props.endAngle * 2 * Math.PI;
 
@@ -90,8 +113,15 @@ export class CircleMarker extends Component {
 
     var radius = this.props.width/2
 
+    var className = ''
+    if (this.props.onClick && this.props.tooltipText) {
+      className += 'clickable'
+    }
+
     return (
-      <circle cx={x} cy={y} r={radius} stroke={this.props.color} strokeWidth={this.props.strokeWidth} fill={this.props.fill} />
+      <g className={className} onClick={this.onClick}>
+        <circle cx={x} cy={y} r={radius} stroke={this.props.color} strokeWidth={this.props.strokeWidth} fill={this.props.fill} />
+      </g>
     )
   }
 }

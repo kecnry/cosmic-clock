@@ -26,8 +26,11 @@ export default class App extends Component {
     windowWidth: window.innerWidth,
     windowHeight: window.innerHeight,
     windowVisible: true,
+    pauseUpdates: false, // only to be accessible from react developer tools
     bgColor: '#212c40',
     fgColor: '#ffffff',
+    showTooltip: false,
+    tooltipText: '',
     showInfo: false,
     showSettings: false,
     showColorSettings: false,
@@ -37,6 +40,13 @@ export default class App extends Component {
     location: null // will use live data if null
   }
   onChange = settings => this.setState(settings)
+  displayTooltip = (tooltipText) => {
+    console.log("request to show tooltip with text: "+tooltipText)
+    this.setState({tooltipText: tooltipText, showTooltip: true});
+  }
+  hideTooltip = () => {
+    this.setState({showTooltip: false});
+  }
   toggleInfo = () => {
     this.setState({showInfo: !this.state.showInfo})
   }
@@ -94,7 +104,7 @@ export default class App extends Component {
         toggleForecastOpacity = 0.9;
       }
 
-      forecastButtons.push(<ToggleButton onClick={this.toggleForecast} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloud'}/>)
+      forecastButtons.push(<ToggleButton onClick={this.toggleForecast} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-rain'}/>)
       forecastButtons.push(refreshForecastButton)
 
     }
@@ -104,6 +114,7 @@ export default class App extends Component {
 
     return (
       <div className="App">
+        <Tooltip showTooltip={this.state.showTooltip} tooltipText={this.state.tooltipText} onClose={this.hideTooltip} bgColor={this.state.bgColor} fgColor={this.state.fgColor} />
         <Info showInfo={this.state.showInfo} bgColor={this.state.bgColor} fgColor={this.state.fgColor} onChange={this.onChange} />
         <Settings showSettings={this.state.showSettings} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} onChange={this.onChange} />
         <ColorSettings showSettings={this.state.showColorSettings} bgColor={this.state.bgColor} fgColor={this.state.fgColor} onChange={this.onChange} />
@@ -121,7 +132,7 @@ export default class App extends Component {
           <ToggleButton onClick={this.toggleSettings} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-cog'}/>
         </div>
 
-        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} showForecast={this.state.showForecast} refreshForecast={this.state.refreshForecast} refreshForecastComplete={this.refreshForecastComplete} pauseUpdates={!this.state.windowVisible}/>
+        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} showForecast={this.state.showForecast} refreshForecast={this.state.refreshForecast} refreshForecastComplete={this.refreshForecastComplete} displayTooltip={this.displayTooltip} pauseUpdates={!this.state.windowVisible || this.state.pauseUpdates}/>
 
       </div>
     );
@@ -132,6 +143,24 @@ class ToggleButton extends Component {
   render() {
     return (
       <a className="button" onClick={this.props.onClick} style={this.props.style}><i className={this.props.iconClass} style={{color: this.props.iconColor}}></i>{this.props.text}</a>
+    )
+  }
+}
+
+class Tooltip extends Component {
+  render () {
+    var display = 'block'
+    if (!this.props.showTooltip) {
+      display = 'none'
+    }
+    return (
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "30%", backgroundColor: "rgba(0,0,0,0.85)", display: display, zIndex: 999}} onClick={this.props.onClose}>
+        <div style={{top: '50%', width: '50%', margin: 'auto', backgroundColor: this.props.bgColor, borderRadius: '10px', padding: '5px 20px 5px 20px'}}>
+          <h2 style={{color: this.props.fgColor}}>{this.props.tooltipText}</h2>
+          <p style={{color: this.props.fgColor}}>(click anywhere to close)</p>
+        </div>
+      </div>
+
     )
   }
 }
