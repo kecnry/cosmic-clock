@@ -28,26 +28,27 @@ export class CircleSegment extends Component {
 
     var strokeWidth = this.props.strokeWidth || this.props.width;
 
+    var d = null;
     if (this.props.strokeWidth) {
       var strokeWidthInner = (this.props.width)/2;
 
-      var d = ["M", x+(r-strokeWidthInner+strokeWidth/2)*Math.sin(startAngle), y-(r-strokeWidthInner+strokeWidth/2)*Math.cos(startAngle),
-               "A", r-strokeWidthInner+strokeWidth/2, r-strokeWidthInner+strokeWidth/2, 0, largeArc, 1, x+(r-strokeWidthInner+strokeWidth/2)*Math.sin(endAngle), y-(r-strokeWidthInner+strokeWidth/2)*Math.cos(endAngle),
+      d = ["M", x+(r-strokeWidthInner+strokeWidth/2)*Math.sin(startAngle), y-(r-strokeWidthInner+strokeWidth/2)*Math.cos(startAngle),
+           "A", r-strokeWidthInner+strokeWidth/2, r-strokeWidthInner+strokeWidth/2, 0, largeArc, 1, x+(r-strokeWidthInner+strokeWidth/2)*Math.sin(endAngle), y-(r-strokeWidthInner+strokeWidth/2)*Math.cos(endAngle),
 
-               "M", x+(r+strokeWidthInner-strokeWidth/2)*Math.sin(startAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(startAngle),
-               "A", r+strokeWidthInner-strokeWidth/2, r+strokeWidthInner-strokeWidth/2, 0, largeArc, 1, x+(r+strokeWidthInner-strokeWidth/2)*Math.sin(endAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(endAngle),
+           "M", x+(r+strokeWidthInner-strokeWidth/2)*Math.sin(startAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(startAngle),
+           "A", r+strokeWidthInner-strokeWidth/2, r+strokeWidthInner-strokeWidth/2, 0, largeArc, 1, x+(r+strokeWidthInner-strokeWidth/2)*Math.sin(endAngle), y-(r+strokeWidthInner-strokeWidth/2)*Math.cos(endAngle),
 
-               "M", x+(r-strokeWidthInner)*Math.sin(startAngle)+strokeWidth/2*Math.cos(startAngle), y-(r-strokeWidthInner)*Math.cos(startAngle)+strokeWidth/2*Math.sin(startAngle),
-               "L", x+(r+strokeWidthInner)*Math.sin(startAngle)+strokeWidth/2*Math.cos(startAngle), y-(r+strokeWidthInner)*Math.cos(startAngle)+strokeWidth/2*Math.sin(startAngle),
+           "M", x+(r-strokeWidthInner)*Math.sin(startAngle)+strokeWidth/2*Math.cos(startAngle), y-(r-strokeWidthInner)*Math.cos(startAngle)+strokeWidth/2*Math.sin(startAngle),
+           "L", x+(r+strokeWidthInner)*Math.sin(startAngle)+strokeWidth/2*Math.cos(startAngle), y-(r+strokeWidthInner)*Math.cos(startAngle)+strokeWidth/2*Math.sin(startAngle),
 
-               "M", x+(r-strokeWidthInner)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r-strokeWidthInner)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
-               "L", x+(r+strokeWidthInner)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r+strokeWidthInner)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
-              ].join(" ");
+           "M", x+(r-strokeWidthInner)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r-strokeWidthInner)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
+           "L", x+(r+strokeWidthInner)*Math.sin(endAngle)-strokeWidth/2*Math.cos(endAngle), y-(r+strokeWidthInner)*Math.cos(endAngle)-strokeWidth/2*Math.sin(endAngle),
+          ].join(" ");
 
     } else {
-      var d = ["M", x+r*Math.sin(startAngle), y-r*Math.cos(startAngle),
-               "A", r, r, 0, largeArc, 1, x+r*Math.sin(endAngle), y-r*Math.cos(endAngle)
-              ].join(" ");
+      d = ["M", x+r*Math.sin(startAngle), y-r*Math.cos(startAngle),
+           "A", r, r, 0, largeArc, 1, x+r*Math.sin(endAngle), y-r*Math.cos(endAngle)
+          ].join(" ");
 
     }
 

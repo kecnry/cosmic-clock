@@ -81,15 +81,13 @@ class Clock extends Component {
     setInterval(
       () => {
           if (this.props.pauseUpdates) return
+          var location = null;
           if (this.props.location && this.props.location.label) {
             // then read from the user-provided locatoin
-            var location = {lat: this.props.location.location.lat, long: this.props.location.location.lng}
+            location = {lat: this.props.location.location.lat, long: this.props.location.location.lng}
           } else if (this.props.coords) {
             // then read from the browser location
-            var location = {lat: this.props.coords.latitude, long: this.props.coords.longitude}
-          } else {
-            // then no location available
-            var location = null
+            location = {lat: this.props.coords.latitude, long: this.props.coords.longitude}
           }
           if (!this.state.location || (location && (location.long !== this.state.location.long || location.lat !== this.state.location.lat || ! this.state.sunTimes))) {
             // sunTimes will fail until location is available, but once it is
