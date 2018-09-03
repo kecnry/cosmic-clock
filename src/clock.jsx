@@ -17,12 +17,24 @@ var moonIcon = ['new',
                 ]
 
 var getPrecipColor = function(precipIntensity) {
-  if (precipIntensity < 0.3) {
+  if (precipIntensity < 0.2) {
+    return 'greenyellow'
+  } else if (precipIntensity < 0.3) {
     return 'green'
-  } else if (precipIntensity < 0.6) {
+  } else if (precipIntensity < 0.4) {
+    return 'darkgreen'
+  } else if (precipIntensity < 0.5) {
     return 'yellow'
-  } else {
+  } else if (precipIntensity < 0.6) {
+    return 'gold'
+  } else if (precipIntensity < 0.7) {
+    return 'orange'
+  } else if (precipIntensity < 0.8) {
+    return 'orangered'
+  } else if (precipIntensity < 0.9) {
     return 'red'
+  } else {
+    return 'darkred'
   }
 }
 
@@ -36,7 +48,7 @@ class Clock extends Component {
     moonPhase: null,
     weather: null,
     pauseUpdates: false,
-    showForecast: false,
+    showForecast: true,
   }
 
   computeSunTimes = () => {
@@ -170,6 +182,11 @@ class Clock extends Component {
     var timeString = hours12 + ":" + ("00" + this.state.date.getMinutes()).slice(-2);
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
+    var locationString = null
+    if (this.props.location && 'description' in this.props.location) {
+      locationString = this.props.location.description
+    }
+
     var centerIconClass = "wi "
     var centerIconOnClick = null
     if (this.props.date || !this.state.weather) {
@@ -185,19 +202,22 @@ class Clock extends Component {
     var precipIntensity = null;
     var color
     if (this.state.showForecast && this.state.weather) {
-      for (var min=0; min < 60; min++) {
-        precipIntensity = this.state.weather.minutely.data[min].precipIntensity
-        if (precipIntensity > 0.05) {
-          color = getPrecipColor(precipIntensity);
-          forecastHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width} startAngle={rHour+min/60} endAngle={rHour+(min+1)/60} color={color}/>)
+      if ("minutely" in this.state.weather) {
+        // not all locations have minutely data
+        for (var min=0; min < 60; min++) {
+          precipIntensity = this.state.weather.minutely.data[min].precipIntensity
+          if (precipIntensity > 0.01) {
+            color = getPrecipColor(precipIntensity);
+            forecastHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width} startAngle={rHour+min/60} endAngle={rHour+(min+1.01)/60} color={color}/>)
+          }
         }
       }
 
       for (var hour=0; hour < 24; hour++) {
         precipIntensity = this.state.weather.hourly.data[hour].precipIntensityMax
-        if (precipIntensity > 0.05) {
+        if (precipIntensity > 0.01) {
           color = getPrecipColor(precipIntensity);
-          forecastDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1)/24} color={color}/>)
+          forecastDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={color}/>)
         }
       }
 
@@ -205,7 +225,7 @@ class Clock extends Component {
         precipIntensity = this.state.weather.daily.data[day].precipIntensityMax
         if (precipIntensity > 0.05) {
           color = getPrecipColor(precipIntensity);
-          forecastMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1)/nDays[month-1]} color={color}/>)
+          forecastMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={color}/>)
         }
       }
     }
@@ -261,6 +281,7 @@ class Clock extends Component {
         <div>
           <p style={{color: this.props.fgColor, margin: "5px", fontFamily: "Helvetica, Arial, sans-serif", fontSize: 56, fontWeight: "bold"}}>{timeString}</p>
           <p style={{color: this.props.fgColor, margin: "5px", fontSize: 24}}>{dateString}</p>
+          <p style={{color: this.props.fgColor, margin: "5px", fontSize: 24}}>{locationString}</p>
           {/* <p style={{color: this.props.fgColor}}>Sunrise: {this.state.sunTimes ? this.state.sunTimes.sunrise.toLocaleTimeString() : "waiting for location"} | Sunset: {this.state.sunTimes ? this.state.sunTimes.sunset.toLocaleTimeString() : "waiting for location"}</p> */}
           {/* <p style={{color: this.props.fgColor}}>Moonphase: {this.state.moonPhase}</p> */}
         </div>
