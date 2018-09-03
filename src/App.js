@@ -28,17 +28,25 @@ export default class App extends Component {
     windowVisible: true,
     bgColor: '#212c40',
     fgColor: '#ffffff',
+    showInfo: false,
     showSettings: false,
     showColorSettings: false,
+    showForecast: true,
     date: null, // will use live date if null
     location: null // will use live data if null
   }
   onChange = settings => this.setState(settings)
+  toggleInfo = () => {
+    this.setState({showInfo: !this.state.showInfo})
+  }
   toggleSettings = () => {
     this.setState({showSettings: !this.state.showSettings})
   }
   toggleColorSettings = () => {
     this.setState({showColorSettings: !this.state.showColorSettings})
+  }
+  toggleForecast = () => {
+    this.setState({showForecast: !this.state.showForecast})
   }
   componentDidMount() {
     window.addEventListener('resize', this.updateWindowDimensions);
@@ -66,18 +74,35 @@ export default class App extends Component {
 
     console.log("windowWidth: "+ this.state.windowWidth + "   " + window.innerWidth+ "   size: "+ size);
 
+    var refreshForecastButton = null;
+    var toggleForecastOpacity = 0.6;
+    if (this.state.showForecast) {
+      refreshForecastButton = <ToggleButton style={{paddingRight: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloud-refresh'}/>
+      toggleForecastOpacity = 0.9;
+    }
+
 
     return (
       <div className="App">
+        <Info showInfo={this.state.showInfo} onChange={this.onChange} />
         <Settings showSettings={this.state.showSettings} date={this.state.date} onChange={this.onChange} />
         <ColorSettings showSettings={this.state.showColorSettings} bgColor={this.state.bgColor} fgColor={this.state.fgColor} onChange={this.onChange} />
 
-        <div style={{position: "absolute", bottom: "2%", right: "2%"}}>
-          <ToggleButton onClick={this.toggleColorSettings} style={{paddingLeft: "10px"}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-palette'}/>
-          <ToggleButton onClick={this.toggleSettings} style={{paddingLeft: "10px"}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-cog'}/>
+        <div style={{position: "absolute", top: "2%", right: "2%"}}>
+          <ToggleButton onClick={this.toggleInfo} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'fas fa-lg fa-info'}/>
         </div>
 
-        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} pauseUpdates={!this.state.windowVisible}/>
+        <div style={{position: "absolute", bottom: "2%", left: "2%"}}>
+          <ToggleButton onClick={this.toggleForecast} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloud'}/>
+          {refreshForecastButton}
+        </div>
+
+        <div style={{position: "absolute", bottom: "2%", right: "2%"}}>
+          <ToggleButton onClick={this.toggleColorSettings} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-palette'}/>
+          <ToggleButton onClick={this.toggleSettings} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-cog'}/>
+        </div>
+
+        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} showForecast={this.state.showForecast} pauseUpdates={!this.state.windowVisible}/>
 
       </div>
     );
@@ -92,8 +117,33 @@ class ToggleButton extends Component {
   }
 }
 
+class Info extends Component {
+  onClose = () => this.props.onChange({showInfo: false});
+  render () {
+    var display = 'block'
+    if (!this.props.showInfo) {
+      display = 'none'
+    }
+    return (
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(255, 255, 255, 0.85)", display: display, zIndex: 999}}>
+      <ToggleButton onClick={this.onClose} style={{position: "fixed", top: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
+
+        <div className='Settings' style={{paddingTop: '5px'}}>
+          <div className='SettingsSection'>
+            Designed and Written by <a href="https://keconroy.com" target="_blank">Kyle Conroy</a>
+            as an <a href="http://github.com/kecnry/cosmic-clock" target="_blank">open-source project on GitHub</a>
+          </div>
+          <div className='SettingsSection'>
+            Weather <a href="https://darksky.net/poweredby/" target="_blank">Powered by DarkSky</a>
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
+
 class Settings extends Component {
-  onCloseSettings = () => this.props.onChange({showSettings: false});
+  onClose = () => this.props.onChange({showSettings: false});
   onChangeDateTime = date => this.props.onChange({date: date});
   onChangeLocation = location => this.props.onChange({location: location});
 
@@ -104,7 +154,7 @@ class Settings extends Component {
     }
     return (
       <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(255, 255, 255, 0.85)", display: display, zIndex: 999}}>
-      <ToggleButton onClick={this.onCloseSettings} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
+      <ToggleButton onClick={this.onClose} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
@@ -120,7 +170,7 @@ class Settings extends Component {
 }
 
 class ColorSettings extends Component {
-  onCloseSettings = () => this.props.onChange({showColorSettings: false});
+  onClose = () => this.props.onChange({showColorSettings: false});
   onChangebgColor = color => this.props.onChange({bgColor: "rgba("+color.rgb.r+","+color.rgb.g+","+color.rgb.b+","+color.rgb.a+")"});
   onChangefgColor = color => this.props.onChange({fgColor: "rgba("+color.rgb.r+","+color.rgb.g+","+color.rgb.b+","+color.rgb.a+")"});
   render() {
@@ -130,7 +180,7 @@ class ColorSettings extends Component {
     }
     return (
       <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: "rgba(255, 255, 255, 0.85)", display: display, zIndex: 999}}>
-        <ToggleButton onClick={this.onCloseSettings} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
+        <ToggleButton onClick={this.onClose} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={'black'} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>

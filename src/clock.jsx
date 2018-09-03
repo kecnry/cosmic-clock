@@ -47,7 +47,6 @@ class Clock extends Component {
     sunTimes: null,
     moonPhase: null,
     weather: null,
-    showForecast: true,
   }
 
   computeSunTimes = () => {
@@ -66,6 +65,7 @@ class Clock extends Component {
   }
 
   updateWeather = () => {
+    console.log("updateWeather");
     var location = null
     if (this.state.location) {
       location = {latitude: this.state.location.lat, longitude: this.state.location.long}
@@ -101,29 +101,25 @@ class Clock extends Component {
             this.setState({date: this.props.date || new Date()});
           }
         },
-        1000
+        1000  // every second
     );
     setInterval(
       () => {
         if (this.props.pauseUpdates) return
         this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()})
       },
-      1000*60*60*24
+      1000*60*60*24  // every day
     );
     setInterval(
       () => {
         if (this.props.pauseUpdates) return
         this.updateWeather()
       },
-      1000*60*5
+      1000*60*15 // every 15 minutes
     )
     this.setState({moonPhase: this.computeMoonPhase()});
     this.updateWeather();
 
-  }
-
-  toggleForecast = () => {
-    this.setState({showForecast: !this.state.showForecast})
   }
 
   render() {
@@ -191,7 +187,7 @@ class Clock extends Component {
     if (this.props.date || !this.state.weather) {
       centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28)];
     } else {
-      centerIconOnClick = this.toggleForecast
+      // centerIconOnClick = this.toggleForecast
       centerIconClass += "toggleForecast wi-forecast-io-"+this.state.weather.currently.icon;
     }
 
@@ -200,7 +196,7 @@ class Clock extends Component {
     var forecastMonth = [];
     var precipIntensity = null;
     var color
-    if (this.state.showForecast && this.state.weather && !this.props.date) {
+    if (this.props.showForecast && this.state.weather && !this.props.date) {
       if ("minutely" in this.state.weather) {
         // not all locations have minutely data
         for (var min=0; min < 60; min++) {
@@ -234,7 +230,6 @@ class Clock extends Component {
       <div style={{paddingTop:50}}>
         {/* weather */}
         <td style={{textAlign: 'center'}}>
-          {this.state.showForecast && this.state.weather && !this.props.date ? <i className='fas fa-check' style={{color: this.props.fgColor, position: 'fixed', top: this.props.size+50, width: '100%', display: 'inline-block'}}></i> : null}
           <i className={centerIconClass} onClick={centerIconOnClick} style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}/>
         </td>
 
