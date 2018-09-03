@@ -73,6 +73,8 @@ class Clock extends Component {
 
     DarkSkyApi.loadItAll('flags,alerts', location)
       .then(result => this.setState({weather: result}));
+
+    this.props.refreshForecastComplete();
   }
 
   componentDidMount() {
@@ -100,6 +102,10 @@ class Clock extends Component {
           } else {
             this.setState({date: this.props.date || new Date()});
           }
+          if (this.props.refreshForecast) {
+            this.updateWeather();
+          }
+
         },
         1000  // every second
     );

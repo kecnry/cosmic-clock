@@ -32,6 +32,7 @@ export default class App extends Component {
     showSettings: false,
     showColorSettings: false,
     showForecast: true,
+    refreshForecast: true,
     date: null, // will use live date if null
     location: null // will use live data if null
   }
@@ -47,6 +48,12 @@ export default class App extends Component {
   }
   toggleForecast = () => {
     this.setState({showForecast: !this.state.showForecast})
+  }
+  refreshForecast = () => {
+    this.setState({refreshForecast: true})
+  }
+  refreshForecastComplete = () => {
+    this.setState({refreshForecast: false})
   }
   componentDidMount() {
     window.addEventListener('resize', this.updateWindowDimensions);
@@ -72,14 +79,27 @@ export default class App extends Component {
       size = this.state.windowHeight/2 - 125
     }
 
-    console.log("windowWidth: "+ this.state.windowWidth + "   " + window.innerWidth+ "   size: "+ size);
+    // console.log("windowWidth: "+ this.state.windowWidth + "   " + window.innerWidth+ "   size: "+ size);
 
-    var refreshForecastButton = null;
-    var toggleForecastOpacity = 0.6;
-    if (this.state.showForecast) {
-      refreshForecastButton = <ToggleButton style={{paddingRight: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloud-refresh'}/>
-      toggleForecastOpacity = 0.9;
+    var forecastButtons = [];
+    if (!this.state.date) {
+      var refreshForecastButton = null;
+      var toggleForecastOpacity = 0.6;
+      if (this.state.showForecast) {
+        var refreshForecastOpacity = 0.6
+        if (this.state.refreshForecast) {
+          refreshForecastOpacity = 0.9
+        }
+        refreshForecastButton = <ToggleButton onClick={this.refreshForecast} style={{paddingRight: "10px", opacity: refreshForecastOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloud-refresh'}/>
+        toggleForecastOpacity = 0.9;
+      }
+
+      forecastButtons.push(<ToggleButton onClick={this.toggleForecast} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloud'}/>)
+      forecastButtons.push(refreshForecastButton)
+
     }
+
+
 
 
     return (
@@ -93,8 +113,7 @@ export default class App extends Component {
         </div>
 
         <div style={{position: "absolute", bottom: "2%", left: "2%"}}>
-          <ToggleButton onClick={this.toggleForecast} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloud'}/>
-          {refreshForecastButton}
+          {forecastButtons}
         </div>
 
         <div style={{position: "absolute", bottom: "2%", right: "2%"}}>
@@ -102,7 +121,7 @@ export default class App extends Component {
           <ToggleButton onClick={this.toggleSettings} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-cog'}/>
         </div>
 
-        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} showForecast={this.state.showForecast} pauseUpdates={!this.state.windowVisible}/>
+        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} showForecast={this.state.showForecast} refreshForecast={this.state.refreshForecast} refreshForecastComplete={this.refreshForecastComplete} pauseUpdates={!this.state.windowVisible}/>
 
       </div>
     );
