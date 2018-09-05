@@ -58,14 +58,16 @@ export default class App extends Component {
   toggleColorSettings = () => {
     this.setState({showColorSettings: !this.state.showColorSettings})
   }
-  toggleForecastRain = () => {
-    this.setState({showForecastRain: !this.state.showForecastRain})
-  }
-  toggleForecastCloud = () => {
-    this.setState({showForecastCloud: !this.state.showForecastCloud})
-  }
-  toggleForecastTemp = () => {
-    this.setState({showForecastTemp: !this.state.showForecastTemp})
+  cycleForecast = () => {
+   if (this.state.showForecastRain) {
+     this.setState({showForecastRain: false, showForecastTemp: true})
+   } else if (this.state.showForecastTemp) {
+     this.setState({showForecastTemp: false, showForecastCloud: true})
+   } else if (this.state.showForecastCloud) {
+     this.setState({showForecastCloud: false})
+   } else {
+     this.setState({showForecastRain: true})
+   }
   }
   refreshForecast = () => {
     this.setState({refreshForecast: true})
@@ -102,24 +104,29 @@ export default class App extends Component {
     var forecastButtons = [];
     if (!this.state.date) {
       var refreshForecastButton = null;
-      var toggleForecastRainOpacity = 0.6;
-      if (this.state.showForecastRain) {toggleForecastRainOpacity = 0.9}
-      var toggleForecastCloudOpacity = 0.6;
-      if (this.state.showForecastCloud) {toggleForecastCloudOpacity = 0.9}
-      var toggleForecastTempOpacity = 0.6;
-      if (this.state.showForecastTemp) {toggleForecastTempOpacity = 0.9}
+      var toggleForecastOpacity = 0.6;
+
+      var toggleForecastIcon = 'wi fa-2x '
+      if (this.state.showForecastRain) {
+        toggleForecastIcon += 'wi-rain'
+      } else if (this.state.showForecastTemp) {
+        toggleForecastIcon += 'wi-thermometer'
+      } else if (this.state.showForecastCloud) {
+        toggleForecastIcon += 'wi-cloudy'
+      } else {
+        toggleForecastIcon += 'wi-cloud'
+      }
 
       if (this.state.showForecastRain || this.state.showForecastCloud || this.state.showForecastTemp) {
+        toggleForecastOpacity = 0.9
         var refreshForecastOpacity = 0.6
         if (this.state.refreshForecast) {
           refreshForecastOpacity = 0.9
         }
-        refreshForecastButton = <ToggleButton onClick={this.refreshForecast} style={{paddingRight: "10px", opacity: refreshForecastOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloud-refresh'}/>
+        refreshForecastButton = <ToggleButton onClick={this.refreshForecast} style={{paddingRight: "10px", opacity: refreshForecastOpacity}} iconColor={this.state.fgColor} iconWidth="40px" iconClass={'wi fa-2x wi-cloud-refresh'}/>
       }
 
-      forecastButtons.push(<ToggleButton onClick={this.toggleForecastRain} style={{paddingRight: "10px", opacity: toggleForecastRainOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-rain'}/>)
-      forecastButtons.push(<ToggleButton onClick={this.toggleForecastTemp} style={{paddingRight: "10px", opacity: toggleForecastTempOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-thermometer'}/>)
-      forecastButtons.push(<ToggleButton onClick={this.toggleForecastCloud} style={{paddingRight: "10px", opacity: toggleForecastCloudOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloudy'}/>)
+      forecastButtons.push(<ToggleButton onClick={this.cycleForecast} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={this.state.fgColor} iconWidth="40px" iconClass={toggleForecastIcon}/>)
       forecastButtons.push(refreshForecastButton)
 
     }
@@ -135,7 +142,7 @@ export default class App extends Component {
         <ColorSettings showSettings={this.state.showColorSettings} bgColor={this.state.bgColor} fgColor={this.state.fgColor} onChange={this.onChange} />
 
         <div style={{position: "absolute", top: "2%", right: "2%"}}>
-          <ToggleButton onClick={this.toggleInfo} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'fas fa-lg fa-info'}/>
+          <ToggleButton onClick={this.toggleInfo} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconWidth="40px" iconClass={'fas fa-lg fa-info'}/>
         </div>
 
         <div style={{position: "absolute", bottom: "2%", left: "2%"}}>
@@ -143,8 +150,8 @@ export default class App extends Component {
         </div>
 
         <div style={{position: "absolute", bottom: "2%", right: "2%"}}>
-          <ToggleButton onClick={this.toggleColorSettings} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-palette'}/>
-          <ToggleButton onClick={this.toggleSettings} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-cog'}/>
+          <ToggleButton onClick={this.toggleColorSettings} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconWidth="40px" iconClass={'fas fa-2x fa-palette'}/>
+          <ToggleButton onClick={this.toggleSettings} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconWidth="40px" iconClass={'fas fa-2x fa-cog'}/>
         </div>
 
         <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} showForecastRain={this.state.showForecastRain} showForecastTemp={this.state.showForecastTemp} showForecastCloud={this.state.showForecastCloud} refreshForecast={this.state.refreshForecast} refreshForecastComplete={this.refreshForecastComplete} displayTooltip={this.displayTooltip} pauseUpdates={!this.state.windowVisible || this.state.pauseUpdates}/>
@@ -157,7 +164,7 @@ export default class App extends Component {
 class ToggleButton extends Component {
   render() {
     return (
-      <a className="button" onClick={this.props.onClick} style={this.props.style}><i className={this.props.iconClass} style={{color: this.props.iconColor}}></i>{this.props.text}</a>
+      <a className="button" onClick={this.props.onClick} style={this.props.style}><i className={this.props.iconClass} style={{color: this.props.iconColor, width: this.props.iconWidth}}></i>{this.props.text}</a>
     )
   }
 }
