@@ -238,7 +238,8 @@ class Clock extends Component {
         }
       }
     }
-    forecastMonth.push(<Tick cx={cx} cy={cy} r={centerSize+1*spacing} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={getPrecipColor(0)} strokeWidth={strokeWidth/2} length={1.7*width}/>)
+    // since the last day++ has already happened, we'll draw this at day+delta instead of day+1
+    forecastMonth.push(<Tick cx={cx} cy={cy} r={centerSize+1*spacing} endAngle={rMonth+(day+0.05)/nDays[month-1]} color={getPrecipColor(0)} strokeWidth={strokeWidth/2} length={0.5*width}/>)
 
 
     return (
