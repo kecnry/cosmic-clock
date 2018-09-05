@@ -34,7 +34,9 @@ export default class App extends Component {
     showInfo: false,
     showSettings: false,
     showColorSettings: false,
-    showForecast: true,
+    showForecastRain: true,
+    showForecastCloud: false,
+    showForecastTemp: false,
     refreshForecast: true,
     date: null, // will use live date if null
     location: null // will use live data if null
@@ -56,8 +58,14 @@ export default class App extends Component {
   toggleColorSettings = () => {
     this.setState({showColorSettings: !this.state.showColorSettings})
   }
-  toggleForecast = () => {
-    this.setState({showForecast: !this.state.showForecast})
+  toggleForecastRain = () => {
+    this.setState({showForecastRain: !this.state.showForecastRain})
+  }
+  toggleForecastCloud = () => {
+    this.setState({showForecastCloud: !this.state.showForecastCloud})
+  }
+  toggleForecastTemp = () => {
+    this.setState({showForecastTemp: !this.state.showForecastTemp})
   }
   refreshForecast = () => {
     this.setState({refreshForecast: true})
@@ -94,17 +102,24 @@ export default class App extends Component {
     var forecastButtons = [];
     if (!this.state.date) {
       var refreshForecastButton = null;
-      var toggleForecastOpacity = 0.6;
-      if (this.state.showForecast) {
+      var toggleForecastRainOpacity = 0.6;
+      if (this.state.showForecastRain) {toggleForecastRainOpacity = 0.9}
+      var toggleForecastCloudOpacity = 0.6;
+      if (this.state.showForecastCloud) {toggleForecastCloudOpacity = 0.9}
+      var toggleForecastTempOpacity = 0.6;
+      if (this.state.showForecastTemp) {toggleForecastTempOpacity = 0.9}
+
+      if (this.state.showForecastRain || this.state.showForecastCloud || this.state.showForecastTemp) {
         var refreshForecastOpacity = 0.6
         if (this.state.refreshForecast) {
           refreshForecastOpacity = 0.9
         }
         refreshForecastButton = <ToggleButton onClick={this.refreshForecast} style={{paddingRight: "10px", opacity: refreshForecastOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloud-refresh'}/>
-        toggleForecastOpacity = 0.9;
       }
 
-      forecastButtons.push(<ToggleButton onClick={this.toggleForecast} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-rain'}/>)
+      forecastButtons.push(<ToggleButton onClick={this.toggleForecastRain} style={{paddingRight: "10px", opacity: toggleForecastRainOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-rain'}/>)
+      forecastButtons.push(<ToggleButton onClick={this.toggleForecastTemp} style={{paddingRight: "10px", opacity: toggleForecastTempOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-thermometer'}/>)
+      forecastButtons.push(<ToggleButton onClick={this.toggleForecastCloud} style={{paddingRight: "10px", opacity: toggleForecastCloudOpacity}} iconColor={this.state.fgColor} iconClass={'wi fa-2x wi-cloudy'}/>)
       forecastButtons.push(refreshForecastButton)
 
     }
@@ -132,7 +147,7 @@ export default class App extends Component {
           <ToggleButton onClick={this.toggleSettings} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={this.state.fgColor} iconClass={'fas fa-2x fa-cog'}/>
         </div>
 
-        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} showForecast={this.state.showForecast} refreshForecast={this.state.refreshForecast} refreshForecastComplete={this.refreshForecastComplete} displayTooltip={this.displayTooltip} pauseUpdates={!this.state.windowVisible || this.state.pauseUpdates}/>
+        <Clock size={size} bgColor={this.state.bgColor} fgColor={this.state.fgColor} date={this.state.date} location={this.state.location} showForecastRain={this.state.showForecastRain} showForecastTemp={this.state.showForecastTemp} showForecastCloud={this.state.showForecastCloud} refreshForecast={this.state.refreshForecast} refreshForecastComplete={this.refreshForecastComplete} displayTooltip={this.displayTooltip} pauseUpdates={!this.state.windowVisible || this.state.pauseUpdates}/>
 
       </div>
     );
