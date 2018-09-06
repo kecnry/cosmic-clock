@@ -99,9 +99,9 @@ class Clock extends Component {
       () => {
           if (this.props.pauseUpdates) return
           var location = null;
-          if (this.props.location && this.props.location.label) {
+          if (this.props.fixedLocation) {
             // then read from the user-provided locatoin
-            location = {lat: this.props.location.location.lat, long: this.props.location.location.lng}
+            location = this.props.fixedLocation;
           } else if (this.props.coords) {
             // then read from the browser location
             location = {lat: this.props.coords.latitude, long: this.props.coords.longitude}
@@ -110,12 +110,12 @@ class Clock extends Component {
             // sunTimes will fail until location is available, but once it is
             // and sunTimes is set, we don't need to set until the next day
             // which the other interval will cover
-            this.setState({date: this.props.date || new Date(), location: location});
+            this.setState({date: this.props.fixedDate || new Date(), location: location});
             this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()});
             this.updateWeather();
 
           } else {
-            this.setState({date: this.props.date || new Date()});
+            this.setState({date: this.props.fixedDate || new Date()});
           }
           if (this.props.refreshForecast) {
             this.updateWeather();
@@ -200,14 +200,9 @@ class Clock extends Component {
     var timeString = hours12 + ":" + ("00" + this.state.date.getMinutes()).slice(-2);
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-    var locationString = null
-    if (this.props.location && 'description' in this.props.location) {
-      locationString = this.props.location.description
-    }
-
     var centerIconClass = "wi "
     var centerIconOnClick = null
-    if (this.props.date || !this.state.weather) {
+    if (this.props.fixedDate || !this.state.weather) {
       centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28)];
     } else {
       // centerIconOnClick = this.toggleForecast
@@ -227,7 +222,7 @@ class Clock extends Component {
     var cloudCover = null;
     var tooltipText = ''
     var color
-    if ((this.props.showForecastRain || this.props.showForecastCloud || this.props.showForecastTemp) && this.state.weather && !this.props.date) {
+    if ((this.props.showForecastRain || this.props.showForecastCloud || this.props.showForecastTemp) && this.state.weather && !this.props.fixedDate) {
       if ("minutely" in this.state.weather) {
         // not all locations have minutely data
         for (var min=0; min < 60; min++) {
@@ -257,7 +252,7 @@ class Clock extends Component {
 
         cloudCover = this.state.weather.hourly.data[hour].cloudCover;
         tooltipText = parseInt(cloudCover*100)+'% cloud cover in '+hour+' hours.'
-        cloudDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={2.0*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={this.props.fgColor} opacity={cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
+        cloudDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={this.props.fgColor} opacity={cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
       }
 
       for (var day=0; day <= 7; day++) {
@@ -276,7 +271,7 @@ class Clock extends Component {
 
         cloudCover = this.state.weather.daily.data[day].cloudCover;
         tooltipText = parseInt(cloudCover*100)+'% cloud cover in '+day+' days.'
-        cloudMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={2.0*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={this.props.fgColor} opacity={cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
+        cloudMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={this.props.fgColor} opacity={cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
 
       }
     }
@@ -337,7 +332,7 @@ class Clock extends Component {
         <div>
           <p style={{color: this.props.fgColor, margin: "5px", fontFamily: "Helvetica, Arial, sans-serif", fontSize: 56, fontWeight: "bold"}}>{timeString}</p>
           <p style={{color: this.props.fgColor, margin: "5px", fontSize: 24}}>{dateString}</p>
-          <p style={{color: this.props.fgColor, margin: "5px", fontSize: 24}}>{locationString}</p>
+          <p style={{color: this.props.fgColor, margin: "5px", fontSize: 24}}>{this.props.locationName}</p>
           {/* <p style={{color: this.props.fgColor}}>Sunrise: {this.state.sunTimes ? this.state.sunTimes.sunrise.toLocaleTimeString() : "waiting for location"} | Sunset: {this.state.sunTimes ? this.state.sunTimes.sunset.toLocaleTimeString() : "waiting for location"}</p> */}
           {/* <p style={{color: this.props.fgColor}}>Moonphase: {this.state.moonPhase}</p> */}
         </div>
