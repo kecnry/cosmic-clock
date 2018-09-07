@@ -288,7 +288,7 @@ class Info extends Component {
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
-            <p style={{color: fgColor}}>Designed and Written by <a href="https://keconroy.com" target="_blank" rel="noopener noreferrer">Kyle Conroy</a><br/>
+            <p style={{color: fgColor}}>Designed and Written by <a href="http://keconroy.com" target="_blank" rel="noopener noreferrer">Kyle Conroy</a><br/>
             as an <a href="http://github.com/kecnry/cosmic-clock" target="_blank" rel="noopener noreferrer">open-source project on GitHub</a></p>
           </div>
           <div className='SettingsSection'>
