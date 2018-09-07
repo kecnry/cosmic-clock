@@ -175,10 +175,10 @@ class ClockApp extends Component {
     var forecastButtons = [];
     if (!fixedDate) {
       var refreshForecastButton = null;
-      // here we'll use Object.create to "deepcopy" the query dictionary,
+      // here we'll reparse search to avoid soft-copying the query dictionary,
       // otherwise it'll automatically be updated and if this ClockApp
       // is redrawn (e.g. by toggling the tooltip) then the cycle will be invoked.
-      var cycleForecastNextQuery = Object.create(this.props.query);
+      var cycleForecastNextQuery = queryString.parse(this.props.search);
       var toggleForecastOpacity = 0.6;
 
       var toggleForecastIcon = 'wi fa-2x '
