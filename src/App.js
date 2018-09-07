@@ -165,6 +165,8 @@ class ClockApp extends Component {
 
     document.body.style.backgroundColor = bgColor;
 
+    console.log(forecastType);
+
 
     // if (forecastType !== this.state.forecastType) {
     //   this.setState({forecastType: forecastType})
@@ -173,7 +175,10 @@ class ClockApp extends Component {
     var forecastButtons = [];
     if (!fixedDate) {
       var refreshForecastButton = null;
-      var cycleForecastNextQuery = this.props.query;
+      // here we'll use Object.create to "deepcopy" the query dictionary,
+      // otherwise it'll automatically be updated and if this ClockApp
+      // is redrawn (e.g. by toggling the tooltip) then the cycle will be invoked.
+      var cycleForecastNextQuery = Object.create(this.props.query);
       var toggleForecastOpacity = 0.6;
 
       var toggleForecastIcon = 'wi fa-2x '
