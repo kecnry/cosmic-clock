@@ -200,7 +200,7 @@ class ClockApp extends Component {
         refreshForecastButton = <ToggleButton onClick={this.forceRefreshForecast} style={{paddingRight: "10px", opacity: refreshForecastOpacity}} iconColor={fgColor} iconWidth="40px" iconClass={'wi fa-2x wi-cloud-refresh'}/>
       }
 
-      forecastButtons.push(<ToggleButton to={{pathname: '/', search: queryString.stringify(cycleForecastNextQuery, {encode: false})}} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={fgColor} iconWidth="40px" iconClass={toggleForecastIcon}/>)
+      forecastButtons.push(<ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(cycleForecastNextQuery, {encode: false})}} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={fgColor} iconWidth="40px" iconClass={toggleForecastIcon}/>)
       forecastButtons.push(refreshForecastButton)
 
     }
@@ -210,7 +210,7 @@ class ClockApp extends Component {
         <Tooltip showTooltip={this.state.showTooltip} tooltipText={this.state.tooltipText} onClose={this.hideTooltip} bgColor={bgColor} fgColor={fgColor} />
 
         <div style={{position: "absolute", top: "2%", right: "2%"}}>
-          <ToggleButton to={{pathname: "/info", search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-lg fa-info'}/>
+          <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/info', search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-lg fa-info'}/>
         </div>
 
         <div style={{position: "absolute", bottom: "2%", left: "2%"}}>
@@ -218,8 +218,8 @@ class ClockApp extends Component {
         </div>
 
         <div style={{position: "absolute", bottom: "2%", right: "2%"}}>
-          <ToggleButton to={{pathname: "/color", search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-2x fa-palette'}/>
-          <ToggleButton to={{pathname: "/settings", search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-2x fa-cog'}/>
+          <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/color', search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-2x fa-palette'}/>
+          <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/settings', search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-2x fa-cog'}/>
         </div>
 
         <Clock size={this.props.size} bgColor={bgColor} fgColor={fgColor}
@@ -279,7 +279,7 @@ class Info extends Component {
 
     return (
       <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
-      <ToggleButton to={{pathname: "/", search: this.props.search}} style={{position: "fixed", top: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
+      <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: this.props.search}} style={{position: "fixed", top: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
@@ -314,7 +314,7 @@ class Settings extends Component {
     } else {
       this.props.query.fixedDate = undefined;
     }
-    this.props.history.push({pathname: "/settings", search: queryString.stringify(this.props.query, {encode: false})})
+    this.props.history.push({pathname: process.env.PUBLIC_URL + '/settings', search: queryString.stringify(this.props.query, {encode: false})})
 
   }
   onChangeLocation = (location) => {
@@ -325,7 +325,7 @@ class Settings extends Component {
       this.props.query.fixedLocation = undefined;
       this.props.query.locationName = undefined;
     }
-    this.props.history.push({pathname: "/settings", search: queryString.stringify(this.props.query, {encode: false})})
+    this.props.history.push({pathname: process.env.PUBLIC_URL + '/settings', search: queryString.stringify(this.props.query, {encode: false})})
   }
 
   render() {
@@ -337,7 +337,7 @@ class Settings extends Component {
 
     return (
       <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "10px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
-      <ToggleButton to={{pathname: "/", search: this.props.search}} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
+      <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: this.props.search}} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
@@ -359,13 +359,13 @@ class ColorSettings extends Component {
   onChangebgColor = (color) => {
     // this.props.onChange({bgColor: "rgba("+color.rgb.r+","+color.rgb.g+","+color.rgb.b+","+color.rgb.a+")"});
     this.props.query.bgColor = color.hex.slice(1);
-    this.props.history.push({pathname: "/color", search: queryString.stringify(this.props.query)})
+    this.props.history.push({pathname: process.env.PUBLIC_URL + '/color', search: queryString.stringify(this.props.query)})
 
   }
   onChangefgColor = (color) => {
     // this.props.onChange({fgColor: "rgba("+color.rgb.r+","+color.rgb.g+","+color.rgb.b+","+color.rgb.a+")"});
     this.props.query.fgColor = color.hex.slice(1);
-    this.props.history.push({pathname: "/color", search: queryString.stringify(this.props.query)})
+    this.props.history.push({pathname: process.env.PUBLIC_URL + '/color', search: queryString.stringify(this.props.query)})
 
   }
   render() {
@@ -374,7 +374,7 @@ class ColorSettings extends Component {
 
     return (
       <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "10px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
-        <ToggleButton to={{pathname: "/", search: this.props.search}} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
+        <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: this.props.search}} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
