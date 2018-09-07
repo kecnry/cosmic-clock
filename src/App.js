@@ -336,7 +336,7 @@ class Settings extends Component {
 
 
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "10px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
       <ToggleButton to={{pathname: "/", search: this.props.search}} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
@@ -346,6 +346,7 @@ class Settings extends Component {
           </div>
           <div className='SettingsSection'>
             <p style={{color: fgColor}}>Location</p><br/>
+            <button onClick={this.onChangeLocation} style={{marginBottom: "10px"}}>Use GPS Location</button>
             <Geosuggest onSuggestSelect={this.onChangeLocation} types={["(cities)"]}/>
           </div>
         </div>
@@ -372,7 +373,7 @@ class ColorSettings extends Component {
     var bgColor = getbgColor(this.props.query);
 
     return (
-      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "50px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "10px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
         <ToggleButton to={{pathname: "/", search: this.props.search}} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
