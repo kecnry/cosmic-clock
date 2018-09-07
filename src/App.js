@@ -185,7 +185,7 @@ class ClockApp extends Component {
         cycleForecastNextQuery.forecast = 'cloud-coverage'
       } else if (forecastType==='cloud-coverage') {
         toggleForecastIcon += 'wi-cloudy'
-        delete cycleForecastNextQuery.forecast
+        cycleForecastNextQuery.forecast = undefined
       } else {
         toggleForecastIcon += 'wi-cloud'
         cycleForecastNextQuery.forecast = 'precipitation'
@@ -312,7 +312,7 @@ class Settings extends Component {
     if (date) {
       this.props.query.fixedDate = date.toString();
     } else {
-      delete this.props.query.fixedDate;
+      this.props.query.fixedDate = undefined;
     }
     this.props.history.push({pathname: "/settings", search: queryString.stringify(this.props.query, {encode: false})})
 
@@ -322,8 +322,8 @@ class Settings extends Component {
       this.props.query.fixedLocation = location.location.lat+","+location.location.lng;
       this.props.query.locationName = location.description;
     } else {
-      delete this.props.query.fixedLocation;
-      delete this.props.query.locationName;
+      this.props.query.fixedLocation = undefined;
+      this.props.query.locationName = undefined;
     }
     this.props.history.push({pathname: "/settings", search: queryString.stringify(this.props.query, {encode: false})})
   }
