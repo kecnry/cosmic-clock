@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {CircleSegment, Tick, CircleMarker, HalfCircleMarker} from './clockComponents'
-import {geolocated} from 'react-geolocated'; // https://www.npmjs.com/package/react-geolocated
 import DarkSkyApi from 'dark-sky-api'; // https://www.npmjs.com/package/dark-sky-api
 var SunCalc = require('suncalc'); // https://github.com/mourner/suncalc
 
@@ -57,13 +56,13 @@ var getTempColor = function(temp) {
 
 DarkSkyApi.apiKey = '796616a5ef888b16148b7f659fba5725';
 
-class Clock extends Component {
+export default class Clock extends Component {
   state = {
     date: new Date(),
-    location: null,
     sunTimes: null,
     moonPhase: null,
     weather: null,
+    location: null,
   }
 
   computeSunTimes = () => {
@@ -82,31 +81,30 @@ class Clock extends Component {
   }
 
   updateWeather = () => {
-    console.log("updateWeather");
-    var location = null
     if (this.state.location) {
-      location = {latitude: this.state.location.lat, longitude: this.state.location.long}
+      console.log("updateWeather");
+      var location = {latitude: this.state.location.lat, longitude: this.state.location.long}
+
+      DarkSkyApi.loadItAll('flags,alerts', location)
+        .then(result => this.setState({weather: result}));
+
+      this.props.refreshForecastComplete();
     }
 
-    DarkSkyApi.loadItAll('flags,alerts', location)
-      .then(result => this.setState({weather: result}));
 
-    this.props.refreshForecastComplete();
   }
 
   componentDidMount() {
     setInterval(
       () => {
           if (this.props.pauseUpdates) return
-          var location = null;
-          if (this.props.fixedLocation) {
-            // then read from the user-provided locatoin
-            location = this.props.fixedLocation;
-          } else if (this.props.coords) {
-            // then read from the browser location
-            location = {lat: this.props.coords.latitude, long: this.props.coords.longitude}
-          }
-          if (!this.state.location || (location && (location.long !== this.state.location.long || location.lat !== this.state.location.lat || ! this.state.sunTimes))) {
+
+          var location = this.props.fixedLocation || this.props.liveLocation;
+
+          if (!this.state.location && !location) {
+            // nothing to do here location-wise...
+            this.setState({date: this.props.fixedDate || new Date()});
+          } else if (!this.state.location || (location && (location.long !== this.state.location.long || location.lat !== this.state.location.lat || ! this.state.sunTimes))) {
             // sunTimes will fail until location is available, but once it is
             // and sunTimes is set, we don't need to set until the next day
             // which the other interval will cover
@@ -343,5 +341,3 @@ class Clock extends Component {
     );
   }
 }
-
-export default geolocated()(Clock);

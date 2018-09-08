@@ -5,6 +5,7 @@ import {
   Route,
   Link
 } from 'react-router-dom';
+import {geolocated} from 'react-geolocated'; // https://www.npmjs.com/package/react-geolocated
 import queryString from 'query-string'; // https://www.npmjs.com/package/query-string
 import DateTimePicker from 'react-datetime-picker'; // https://github.com/wojtekmaj/react-datetime-picker
 import Geosuggest from 'react-geosuggest'; // https://github.com/ubilabs/react-geosuggest
@@ -83,14 +84,13 @@ var getLocationName = function(query) {
 }
 
 
-export default class App extends Component {
+class App extends Component {
   state = {
     windowWidth: window.innerWidth,
     windowHeight: window.innerHeight,
     windowVisible: true,
     pauseUpdates: false, // only to be accessible from react developer tools
     refreshForecast: true,
-    date: null, // will use live date if null
   }
   onChange = settings => this.setState(settings)
   forceRefreshForecast = () => {
@@ -123,15 +123,22 @@ export default class App extends Component {
 
     // console.log("windowWidth: "+ this.state.windowWidth + "   " + window.innerWidth+ "   size: "+ size);
 
+    var liveLocation = null;
+    if (this.props.coords) {
+      // then read from the browser location
+      liveLocation = {lat: this.props.coords.latitude, long: this.props.coords.longitude}
+    }
+
     return (
       <div className="App">
         <Router>
           <div>
-            <Route path={process.env.PUBLIC_URL + '/info'} render={(props) => <Info match={props.match} search={props.location.search} query={queryString.parse(props.location.search)} onChange={this.onChange} />}/>
-            <Route path={process.env.PUBLIC_URL + '/settings'} render={(props) => <Settings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)} date={this.state.date} onChange={this.onChange} />}/>
+            <Route path={process.env.PUBLIC_URL + '/info'} render={(props) => <Info match={props.match} search={props.location.search} query={queryString.parse(props.location.search)} />}/>
+            <Route path={process.env.PUBLIC_URL + '/settings'} render={(props) => <Settings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)} liveLocation={liveLocation} />}/>
             <Route path={process.env.PUBLIC_URL + '/color'} render={(props) => <ColorSettings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)}/>}/>
             <Route path={process.env.PUBLIC_URL + '/'} render={(props) => <ClockApp match={props.match} search={props.location.search} query={queryString.parse(props.location.search)}
-                                                                                    size={size} date={this.state.date}
+                                                                                    size={size}
+                                                                                    liveLocation = {liveLocation}
                                                                                     forceRefreshForecast={this.forceRefreshForecast} refreshForecast={this.state.refreshForecast} refreshForecastComplete={this.refreshForecastComplete}
                                                                                     windowVisible={this.state.windowVisible} pauseUpdates={this.state.pauseUpdates}/>}/>
           </div>
@@ -165,15 +172,8 @@ class ClockApp extends Component {
 
     document.body.style.backgroundColor = bgColor;
 
-    console.log(forecastType);
-
-
-    // if (forecastType !== this.state.forecastType) {
-    //   this.setState({forecastType: forecastType})
-    // }
-
     var forecastButtons = [];
-    if (!fixedDate) {
+    if (!fixedDate && (fixedLocation || this.props.liveLocation)) {
       var refreshForecastButton = null;
       // here we'll reparse search to avoid soft-copying the query dictionary,
       // otherwise it'll automatically be updated and if this ClockApp
@@ -228,7 +228,7 @@ class ClockApp extends Component {
         </div>
 
         <Clock size={this.props.size} bgColor={bgColor} fgColor={fgColor}
-               fixedDate={fixedDate} fixedLocation={fixedLocation} locationName={locationName}
+               fixedDate={fixedDate} fixedLocation={fixedLocation} liveLocation={this.props.liveLocation} locationName={locationName}
                showForecastRain={forecastType==='precipitation'} showForecastTemp={forecastType==='temperature'} showForecastCloud={forecastType==='cloud-coverage'}
                refreshForecast={this.props.refreshForecast} refreshForecastComplete={this.props.refreshForecastComplete}
                displayTooltip={this.displayTooltip}
@@ -351,7 +351,7 @@ class Settings extends Component {
           </div>
           <div className='SettingsSection'>
             <p style={{color: fgColor}}>Location</p><br/>
-            <button onClick={this.onChangeLocation} style={{marginBottom: "10px"}}>Use GPS Location</button>
+            {this.props.liveLocation ? <button onClick={this.onChangeLocation} style={{marginBottom: "10px"}}>Use GPS Location</button> : <p style={{color: fgColor}}>enable browser location to use live-location</p>}
             <Geosuggest onSuggestSelect={this.onChangeLocation} types={["(cities)"]}/>
           </div>
         </div>
@@ -399,3 +399,5 @@ class ColorSettings extends Component {
     )
   }
 }
+
+export default geolocated()(App);
