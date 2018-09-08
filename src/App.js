@@ -134,7 +134,8 @@ class App extends Component {
         <Router>
           <div>
             <Route path={process.env.PUBLIC_URL + '/info'} render={(props) => <Info match={props.match} search={props.location.search} query={queryString.parse(props.location.search)} />}/>
-            <Route path={process.env.PUBLIC_URL + '/settings'} render={(props) => <Settings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)} liveLocation={liveLocation} />}/>
+            <Route path={process.env.PUBLIC_URL + '/datetime'} render={(props) => <DatetimeSettings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)} />}/>
+            <Route path={process.env.PUBLIC_URL + '/location'} render={(props) => <LocationSettings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)} liveLocation={liveLocation} />}/>
             <Route path={process.env.PUBLIC_URL + '/color'} render={(props) => <ColorSettings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)}/>}/>
             <Route path={process.env.PUBLIC_URL + '/'} render={(props) => <ClockApp match={props.match} search={props.location.search} query={queryString.parse(props.location.search)}
                                                                                     size={size}
@@ -154,6 +155,7 @@ class ClockApp extends Component {
     // forecastType: null,
     showTooltip: false,
     tooltipText: '',
+    liveLocationName: null
   }
   displayTooltip = (tooltipText) => {
     console.log("request to show tooltip with text: "+tooltipText)
@@ -168,7 +170,24 @@ class ClockApp extends Component {
     var forecastType = getForecastType(this.props.query);
     var fixedDate = getFixedDate(this.props.query); // will use live-data if null
     var fixedLocation = getFixedLocation(this.props.query); // will use live-data if null
-    var locationName = getLocationName(this.props.query); // won't display if null
+    var fixedLocationName = getLocationName(this.props.query); // won't display if null
+
+    if (!fixedLocationName && this.props.liveLocation && !this.state.liveLocationName) {
+      console.log("attempting reverse geolocation at: lat: "+this.props.liveLocation.lat+" lng: "+this.props.liveLocation.long)
+      var geocoder = new window.google.maps.Geocoder;
+      geocoder.geocode({'location': {lat: this.props.liveLocation.lat, lng: this.props.liveLocation.long}}, (results, status) => {
+                if (status === 'OK') {
+                  for (var i = 0; i < results.length; i++) {
+                    if (results[i].types.includes("locality")) {
+                      this.setState({liveLocationName: results[i].formatted_address});
+                      break
+                    }
+                  }
+                } else {
+                  console.log("reverse geocode failed with status: "+status)
+                }
+              });
+    }
 
     document.body.style.backgroundColor = bgColor;
 
@@ -224,11 +243,12 @@ class ClockApp extends Component {
 
         <div style={{position: "absolute", bottom: "2%", right: "2%"}}>
           <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/color', search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-2x fa-palette'}/>
-          <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/settings', search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-2x fa-cog'}/>
+          {/* <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/settings', search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-2x fa-cog'}/> */}
         </div>
 
-        <Clock size={this.props.size} bgColor={bgColor} fgColor={fgColor}
-               fixedDate={fixedDate} fixedLocation={fixedLocation} liveLocation={this.props.liveLocation} locationName={locationName}
+        <Clock search={this.props.search}
+               size={this.props.size} bgColor={bgColor} fgColor={fgColor}
+               fixedDate={fixedDate} fixedLocation={fixedLocation} liveLocation={this.props.liveLocation} locationName={fixedLocationName || this.state.liveLocationName}
                showForecastRain={forecastType==='precipitation'} showForecastTemp={forecastType==='temperature'} showForecastCloud={forecastType==='cloud-coverage'}
                refreshForecast={this.props.refreshForecast} refreshForecastComplete={this.props.refreshForecastComplete}
                displayTooltip={this.displayTooltip}
@@ -312,25 +332,15 @@ class Info extends Component {
   }
 }
 
-class Settings extends Component {
+class DatetimeSettings extends Component {
   onChangeDateTime = (date) => {
     if (date) {
       this.props.query.fixedDate = date.toString();
     } else {
       this.props.query.fixedDate = undefined;
     }
-    this.props.history.push({pathname: process.env.PUBLIC_URL + '/settings', search: queryString.stringify(this.props.query, {encode: false})})
+    this.props.history.push({pathname: process.env.PUBLIC_URL + '/datetime', search: queryString.stringify(this.props.query, {encode: false})})
 
-  }
-  onChangeLocation = (location) => {
-    if (location && "location" in location) {
-      this.props.query.fixedLocation = location.location.lat+","+location.location.lng;
-      this.props.query.locationName = location.description;
-    } else {
-      this.props.query.fixedLocation = undefined;
-      this.props.query.locationName = undefined;
-    }
-    this.props.history.push({pathname: process.env.PUBLIC_URL + '/settings', search: queryString.stringify(this.props.query, {encode: false})})
   }
 
   render() {
@@ -342,13 +352,40 @@ class Settings extends Component {
 
     return (
       <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "10px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
-      <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: this.props.search}} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
+        <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: this.props.search}} style={{position: "fixed", top: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
             <p style={{color: fgColor}}>Date and Time</p><br/>
             <DateTimePicker onChange={this.onChangeDateTime} value={fixedDate}/>
           </div>
+        </div>
+      </div>
+    )
+  }
+}
+
+class LocationSettings extends Component {
+  onChangeLocation = (location) => {
+    if (location && "location" in location) {
+      this.props.query.fixedLocation = location.location.lat+","+location.location.lng;
+      this.props.query.locationName = location.description;
+    } else {
+      this.props.query.fixedLocation = undefined;
+      this.props.query.locationName = undefined;
+    }
+    this.props.history.push({pathname: process.env.PUBLIC_URL + '/location', search: queryString.stringify(this.props.query, {encode: false})})
+  }
+
+  render() {
+    var fgColor = getfgColor(this.props.query);
+    var bgColor = getbgColor(this.props.query);
+
+    return (
+      <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "10px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
+        <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: this.props.search}} style={{position: "fixed", top: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
+
+        <div className='Settings' style={{paddingTop: '5px'}}>
           <div className='SettingsSection'>
             <p style={{color: fgColor}}>Location</p><br/>
             {this.props.liveLocation ? <button onClick={this.onChangeLocation} style={{marginBottom: "10px"}}>Use GPS Location</button> : <p style={{color: fgColor}}>enable browser location to use live-location</p>}
@@ -379,6 +416,7 @@ class ColorSettings extends Component {
 
     return (
       <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "10px", backgroundColor: bgColor, zIndex: 999, overflowY: 'scroll'}}>
+        <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: this.props.search}} style={{position: "fixed", top: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
         <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: this.props.search}} style={{position: "fixed", bottom: "2%", right: "2%"}} iconColor={fgColor} iconClass={'fas fa-2x fa-times'}/>
 
         <div className='Settings' style={{paddingTop: '5px'}}>

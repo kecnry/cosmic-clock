@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import {Link} from 'react-router-dom';
+
 import {CircleSegment, Tick, CircleMarker, HalfCircleMarker} from './clockComponents'
 import DarkSkyApi from 'dark-sky-api'; // https://www.npmjs.com/package/dark-sky-api
 var SunCalc = require('suncalc'); // https://github.com/mourner/suncalc
@@ -331,9 +333,9 @@ export default class Clock extends Component {
         </div>
 
         <div>
-          <p style={{color: this.props.fgColor, margin: "5px", fontFamily: "Helvetica, Arial, sans-serif", fontSize: 56, fontWeight: "bold"}}>{timeString}</p>
-          <p style={{color: this.props.fgColor, margin: "5px", fontSize: 24}}>{dateString}</p>
-          <p style={{color: this.props.fgColor, margin: "5px", fontSize: 24}}>{this.props.locationName}</p>
+          <Link style={{color: this.props.fgColor, margin: "5px", display: "inherit", fontFamily: "Helvetica, Arial, sans-serif", fontSize: 56, fontWeight: "bold"}} to={{pathname: process.env.PUBLIC_URL + '/datetime', search: this.props.search}}>{timeString}</Link>
+          <Link style={{color: this.props.fgColor, margin: "5px", display: "inherit", fontSize: 24, fontWeight: "normal"}} to={{pathname: process.env.PUBLIC_URL + '/datetime', search: this.props.search}}>{dateString}</Link>
+          <Link style={{color: this.props.fgColor, margin: "5px", display: "inherit", fontSize: 24, fontWeight: "normal"}} to={{pathname: process.env.PUBLIC_URL + '/location', search: this.props.search}}>{this.props.locationName}</Link>
           {/* <p style={{color: this.props.fgColor}}>Sunrise: {this.state.sunTimes ? this.state.sunTimes.sunrise.toLocaleTimeString() : "waiting for location"} | Sunset: {this.state.sunTimes ? this.state.sunTimes.sunset.toLocaleTimeString() : "waiting for location"}</p> */}
           {/* <p style={{color: this.props.fgColor}}>Moonphase: {this.state.moonPhase}</p> */}
         </div>
