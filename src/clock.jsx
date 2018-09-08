@@ -215,16 +215,25 @@ export default class Clock extends Component {
     var centerIconClass = "wi "
     var centerIconText = null
     var centerIconOnClick = null
-    if (this.props.fixedDate || !this.state.weather) {
+    if (this.props.fixedDate) {
       centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28)];
     } else if (this.props.showForecastRain) {
-      // centerIconOnClick = this.toggleForecast
-      centerIconClass += "wi-forecast-io-"+this.state.weather.currently.icon;
+      if (this.state.weather) {
+        // centerIconOnClick = this.toggleForecast
+        centerIconClass += "wi-forecast-io-"+this.state.weather.currently.icon;
+      } else {
+        centerIconClass += "wi-rain"
+      }
     } else if (this.props.showForecastTemp) {
-      centerIconClass += "wi-thermometer"
-      centerIconText = parseInt(this.state.weather.currently.temperature);
+      if (this.state.weather) {
+        centerIconText = parseInt(this.state.weather.currently.temperature);
+      } else {
+        centerIconClass += "wi-thermometer"
+      }
     } else if (this.props.showForecastCloud) {
-      if (this.state.weather.currently.cloudCover > 0.5) {
+      if (!this.state.weather) {
+        centerIconClass += "wi-cloudy"
+      } else if (this.state.weather.currently.cloudCover > 0.5) {
         centerIconClass += "wi-cloudy"
       } else if (this.state.weather.currently.cloudCover > 0.3) {
         centerIconClass += "wi-cloud"
