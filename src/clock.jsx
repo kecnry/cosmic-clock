@@ -84,6 +84,10 @@ export default class Clock extends Component {
   }
 
   updateWeather = () => {
+    if (!(this.props.showForecastRain || this.props.showForecastCloud || this.props.showForecastTemp) || this.props.fixedDate) {
+      console.log("skipping weather update")
+      return
+    }
     if (this.state.location) {
       console.log("updateWeather");
       var location = {latitude: this.state.location.lat, longitude: this.state.location.long}
@@ -114,6 +118,7 @@ export default class Clock extends Component {
             this.setState({date: this.props.fixedDate || new Date(), location: location});
             this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()});
             this.updateWeather();
+
 
           } else {
             this.setState({date: this.props.fixedDate || new Date()});
