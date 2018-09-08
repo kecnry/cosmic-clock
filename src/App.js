@@ -250,7 +250,7 @@ class ClockApp extends Component {
                size={this.props.size} bgColor={bgColor} fgColor={fgColor}
                fixedDate={fixedDate} fixedLocation={fixedLocation} liveLocation={this.props.liveLocation} locationName={fixedLocationName || this.state.liveLocationName}
                showForecastRain={forecastType==='precipitation'} showForecastTemp={forecastType==='temperature'} showForecastCloud={forecastType==='cloud-coverage'}
-               refreshForecast={this.props.refreshForecast} refreshForecastComplete={this.props.refreshForecastComplete}
+               refreshForecast={this.props.refreshForecast} refreshForecastComplete={this.props.refreshForecastComplete} cycleForecastNextQuery={cycleForecastNextQuery}
                displayTooltip={this.displayTooltip}
                pauseUpdates={!this.props.windowVisible || this.props.pauseUpdates}/>
       </div>

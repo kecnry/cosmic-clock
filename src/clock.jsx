@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Link} from 'react-router-dom';
 
+import queryString from 'query-string'; // https://www.npmjs.com/package/query-string
 import {CircleSegment, Tick, CircleMarker, HalfCircleMarker} from './clockComponents'
 import DarkSkyApi from 'dark-sky-api'; // https://www.npmjs.com/package/dark-sky-api
 var SunCalc = require('suncalc'); // https://github.com/mourner/suncalc
@@ -204,12 +205,28 @@ export default class Clock extends Component {
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
     var centerIconClass = "wi "
+    var centerIconText = null
     var centerIconOnClick = null
     if (this.props.fixedDate || !this.state.weather) {
       centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28)];
-    } else {
+    } else if (this.props.showForecastRain) {
       // centerIconOnClick = this.toggleForecast
       centerIconClass += "wi-forecast-io-"+this.state.weather.currently.icon;
+    } else if (this.props.showForecastTemp) {
+      centerIconClass += "wi-thermometer"
+      centerIconText = parseInt(this.state.weather.currently.temperature);
+    } else if (this.props.showForecastCloud) {
+      if (this.state.weather.currently.cloudCover > 0.5) {
+        centerIconClass += "wi-cloudy"
+      } else if (this.state.weather.currently.cloudCover > 0.3) {
+        centerIconClass += "wi-cloud"
+      } else if (rDay > rDaySunset || rDay < rDaySunrise) {
+        centerIconClass += "wi-night-clear"
+      } else {
+        centerIconClass += "wi-day-sunny"
+      }
+    } else {
+      centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28)];
     }
 
     var precipHour = [];
@@ -286,7 +303,12 @@ export default class Clock extends Component {
       <div style={{paddingTop:50}}>
         {/* weather */}
         <td style={{textAlign: 'center'}}>
-          <i className={centerIconClass} onClick={centerIconOnClick} style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}/>
+          <Link to={{pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(this.props.cycleForecastNextQuery, {encode: false})}}>
+            {centerIconText ?
+              <i style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}>{centerIconText}&deg;</i> :
+              <i className={centerIconClass} onClick={centerIconOnClick} style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}/>
+            }
+          </Link>
         </td>
 
         <div>
