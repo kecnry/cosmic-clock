@@ -120,6 +120,9 @@ export default class Clock extends Component {
             this.updateWeather();
 
 
+          } else if (this.props.fixedDate !== this.state.date) {
+            this.setState({date: this.props.fixedDate || new Date()});
+            this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()});
           } else {
             this.setState({date: this.props.fixedDate || new Date()});
           }
