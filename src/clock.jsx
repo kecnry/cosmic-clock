@@ -255,7 +255,7 @@ class Clock extends Component {
 
         cloudCover = this.state.weather.hourly.data[hour].cloudCover;
         tooltipText = parseInt(cloudCover*100)+'% cloud cover in '+hour+' hours.'
-        cloudDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={this.props.fgColor} opacity={cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
+        cloudDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDay+hour/24} endAngle={rDay+(hour+1.01)/24} color={this.props.fgColor} opacity={0.7*cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
       }
 
       for (var day=0; day <= 7; day++) {
@@ -274,7 +274,7 @@ class Clock extends Component {
 
         cloudCover = this.state.weather.daily.data[day].cloudCover;
         tooltipText = parseInt(cloudCover*100)+'% cloud cover in '+day+' days.'
-        cloudMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={this.props.fgColor} opacity={cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
+        cloudMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonth+day/nDays[month-1]} endAngle={rMonth+(day+1.01)/nDays[month-1]} color={this.props.fgColor} opacity={0.7*cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
 
       }
     }
