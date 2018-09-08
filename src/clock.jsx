@@ -194,6 +194,9 @@ class Clock extends Component {
     var spacing = this.props.size/6.5
 
     var hours12 = this.state.date.getHours();
+    if (hours12===0) {
+      hours12 = 12;
+    }
     if (hours12 > 12) {
       hours12 -= 12
     }
