@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 
 export class CircleSegment extends Component {
   onClick = () => {
-    this.props.onClick(this.props.tooltipText)
+    this.props.onClick(this.props.tooltipText, this.props.tooltipLink)
   }
   render () {
 
@@ -70,7 +70,7 @@ export class CircleSegment extends Component {
 
 export class Tick extends Component {
   onClick = () => {
-    this.props.onClick(this.props.tooltipText)
+    this.props.onClick(this.props.tooltipText, this.props.tooltipLink)
   }
   render () {
 
@@ -104,7 +104,7 @@ export class Tick extends Component {
 export class CircleMarker extends Component {
   onClick = () => {
     if (this.props.onClick) {
-      this.props.onClick(this.props.tooltipText)
+      this.props.onClick(this.props.tooltipText, this.props.tooltipLink)
     }
   }
   render () {

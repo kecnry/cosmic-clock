@@ -161,6 +161,7 @@ class ClockApp extends Component {
       this.state = {
         showTooltip: false,
         tooltipText: '',
+        tooltipLink: null,
         liveLocationName: null,
         calendarAuthorized: ApiCalendar.sign,
       };
@@ -169,9 +170,9 @@ class ClockApp extends Component {
           // ApiCalendar.listenSign(this.updateCalendarAuthorization);
       });
   }
-  displayTooltip = (tooltipText) => {
+  displayTooltip = (tooltipText, tooltipLink) => {
     console.log("request to show tooltip with text: "+tooltipText)
-    this.setState({tooltipText: tooltipText, showTooltip: true});
+    this.setState({tooltipText: tooltipText, tooltipLink: tooltipLink, showTooltip: true});
   }
   hideTooltip = () => {
     this.setState({showTooltip: false});
@@ -281,7 +282,7 @@ class ClockApp extends Component {
 
     return (
       <div className="ClockApp">
-        <Tooltip showTooltip={this.state.showTooltip} tooltipText={this.state.tooltipText} onClose={this.hideTooltip} bgColor={bgColor} fgColor={fgColor} />
+        <Tooltip showTooltip={this.state.showTooltip} tooltipText={this.state.tooltipText} tooltipLink={this.state.tooltipLink} onClose={this.hideTooltip} bgColor={bgColor} fgColor={fgColor} />
 
         <div style={{position: "absolute", top: "2%", right: "2%"}}>
           <ToggleButton to={{pathname: process.env.PUBLIC_URL + '/info', search: this.props.search}} style={{paddingLeft: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'fas fa-lg fa-info'}/>
@@ -341,6 +342,7 @@ class Tooltip extends Component {
       <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "30%", backgroundColor: "rgba(0,0,0,0.85)", display: display, zIndex: 999}} onClick={this.props.onClose}>
         <div style={{top: '50%', width: '50%', margin: 'auto', backgroundColor: this.props.bgColor, borderRadius: '10px', padding: '5px 20px 5px 20px'}}>
           <h2 style={{color: this.props.fgColor}}>{this.props.tooltipText}</h2>
+          {this.props.tooltipLink ? <a href={this.props.tooltipLink} style={{color: this.props.fgColor}} target="_blank" rel="noopener noreferrer"><span class="fas fa-external-link-alt"/> more info</a> : null}
           <p style={{color: this.props.fgColor}}>(click anywhere to close)</p>
         </div>
       </div>
