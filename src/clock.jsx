@@ -4,7 +4,10 @@ import {Link} from 'react-router-dom';
 import queryString from 'query-string'; // https://www.npmjs.com/package/query-string
 import {CircleSegment, Tick, CircleMarker, HalfCircleMarker} from './clockComponents'
 import DarkSkyApi from 'dark-sky-api'; // https://www.npmjs.com/package/dark-sky-api
+import ApiCalendar from 'react-google-calendar-api'; // https://github.com/Insomniiak/react-google-calendar-api
+
 var SunCalc = require('suncalc'); // https://github.com/mourner/suncalc
+
 
 // NOTE: this does not account for a leap year.
 var nDays = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
@@ -64,6 +67,7 @@ export default class Clock extends Component {
     date: new Date(),
     sunTimes: null,
     moonPhase: null,
+    calendarEvents: null,
     weather: null,
     location: null,
   }
@@ -81,6 +85,23 @@ export default class Clock extends Component {
   computeMoonPhase = () => {
     console.log("computeMoonPhase at "+this.state.date);
     return(SunCalc.getMoonIllumination(this.state.date).phase);
+  }
+
+  updateCalendar = () => {
+    if (!this.props.showCalendar || this.props.fixedDate) {
+      console.log("skipping updating calendar")
+      return
+    }
+    console.log("updateCalendar");
+    ApiCalendar.listUpcomingEvents(10)
+      .then(({result}: any) => {
+        // console.log(result.items);
+        this.setState({calendarEvents: result.items})
+
+        // for (var i=0; i < this.state.calendarEvents.length; i++) {
+        //   console.log(this.state.calendarEvents[i].summary)
+        // }
+      });
   }
 
   updateWeather = () => {
@@ -121,6 +142,7 @@ export default class Clock extends Component {
 
 
           } else if (this.props.fixedDate !== this.state.date) {
+            // this will continually update when fixedDate is null.  We do want that to happen the first time
             this.setState({date: this.props.fixedDate || new Date()});
             this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()});
           } else {
@@ -128,6 +150,12 @@ export default class Clock extends Component {
           }
           if (this.props.refreshForecast) {
             this.updateWeather();
+          }
+
+
+
+          if (this.props.showCalendar && ! this.state.calendarEvents) {
+            this.updateCalendar()
           }
 
         },
@@ -144,6 +172,7 @@ export default class Clock extends Component {
       () => {
         if (this.props.pauseUpdates) return
         this.updateWeather()
+        this.updateCalendar()
       },
       1000*60*15 // every 15 minutes
     )
@@ -202,6 +231,7 @@ export default class Clock extends Component {
     var centerIconSize = 0.8*centerSize
     var spacing = this.props.size/6.5
 
+    // DATE/TIME BELOW CLOCK
     var hours12 = this.state.date.getHours();
     if (hours12===0) {
       hours12 = 12;
@@ -212,6 +242,34 @@ export default class Clock extends Component {
     var timeString = hours12 + ":" + ("00" + this.state.date.getMinutes()).slice(-2);
     var dateString = this.state.date.toLocaleDateString('en-us', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
+    // CALENDAR
+    var calendarDay = [];
+    var eventDateStart = new Date()
+    var eventDateEnd = new Date()
+    var rDayEventStart = null;
+    var rDayEventEnd = null;
+    var eventTooltip = null;
+    if (this.props.showCalendar && this.state.calendarEvents) {
+      for (var i=0; i < this.state.calendarEvents.length; i++) {
+        eventDateStart.setTime(Date.parse(this.state.calendarEvents[i].start.dateTime))
+        eventDateEnd.setTime(Date.parse(this.state.calendarEvents[i].end.dateTime))
+        // show events starting within the next 24 hours but have not already completed
+        if (eventDateStart - this.state.date < 24*60*60*1000 && eventDateEnd - this.state.date > 0) {
+
+          rDayEventStart = eventDateStart.getHours() / 24
+          rDayEventEnd = eventDateEnd.getHours() / 24
+          eventTooltip = this.state.calendarEvents[i].summary + " ("+eventDateStart.toLocaleDateString()+" "+eventDateStart.toLocaleTimeString()+"-"+eventDateEnd.toLocaleTimeString()+")"
+          calendarDay.push(<CircleSegment cx={cx} cy={cy}
+                                          r={centerSize+2*spacing} width={2.0*width}
+                                          startAngle={rDayEventStart} endAngle={rDayEventEnd}
+                                          color={this.props.fgColor} strokeWidth={0.75*strokeWidth}
+                                          tooltipText={eventTooltip} onClick={this.props.displayTooltip}/>)
+        }
+      }
+    }
+
+
+    // WEATHER
     var centerIconClass = "wi "
     var centerIconText = null
     var centerIconOnClick = null
@@ -357,6 +415,7 @@ export default class Clock extends Component {
               {this.props.showForecastCloud ? cloudDay : null}
               {this.props.showForecastTemp ? tempDay : null}
               {this.props.showForecastRain ? precipDay : null}
+              {this.props.showCalendar ? calendarDay : null}
               <CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={width} startAngle={0} endAngle={rDay} color={this.props.fgColor}/>
               {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunrise} color={this.props.fgColor} strokeWidth={strokeWidth} fill={this.props.fgColor} tooltipText={sunriseTooltipText} onClick={this.props.displayTooltip}/> : null}
               {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunset} color={this.props.fgColor} strokeWidth={strokeWidth} fill={'transparent'} tooltipText={sunsetTooltipText} onClick={this.props.displayTooltip}/> : null}

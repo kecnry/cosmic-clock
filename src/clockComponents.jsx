@@ -103,7 +103,9 @@ export class Tick extends Component {
 
 export class CircleMarker extends Component {
   onClick = () => {
-    this.props.onClick(this.props.tooltipText)
+    if (this.props.onClick) {
+      this.props.onClick(this.props.tooltipText)
+    }
   }
   render () {
     var endAngle = this.props.endAngle * 2 * Math.PI;

@@ -10,6 +10,7 @@ import queryString from 'query-string'; // https://www.npmjs.com/package/query-s
 import DateTimePicker from 'react-datetime-picker'; // https://github.com/wojtekmaj/react-datetime-picker
 import Geosuggest from 'react-geosuggest'; // https://github.com/ubilabs/react-geosuggest
 import {ChromePicker} from 'react-color'; // https://github.com/casesandberg/react-color
+import ApiCalendar from 'react-google-calendar-api'; // https://github.com/Insomniiak/react-google-calendar-api
 
 import Clock from './clock';
 import './App.css';
@@ -51,6 +52,14 @@ var getbgColor = function(query) {
     return '#212c40';
   }
 }
+
+var getShowCalendar = function(query) {
+  if ('calendar' in query) {
+    return query.calendar
+  }
+  return null;
+}
+
 
 var getForecastType = function(query) {
   if ('forecast' in query) {
@@ -137,7 +146,7 @@ class App extends Component {
             <Route path={process.env.PUBLIC_URL + '/datetime'} render={(props) => <DatetimeSettings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)} />}/>
             <Route path={process.env.PUBLIC_URL + '/location'} render={(props) => <LocationSettings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)} liveLocation={liveLocation} />}/>
             <Route path={process.env.PUBLIC_URL + '/color'} render={(props) => <ColorSettings match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)}/>}/>
-            <Route path={process.env.PUBLIC_URL + '/'} render={(props) => <ClockApp match={props.match} search={props.location.search} query={queryString.parse(props.location.search)}
+            <Route path={process.env.PUBLIC_URL + '/'} render={(props) => <ClockApp match={props.match} history={props.history} search={props.location.search} query={queryString.parse(props.location.search)}
                                                                                     size={size}
                                                                                     liveLocation = {liveLocation}
                                                                                     forceRefreshForecast={this.forceRefreshForecast} refreshForecast={this.state.refreshForecast} refreshForecastComplete={this.refreshForecastComplete}
@@ -151,11 +160,18 @@ class App extends Component {
 }
 
 class ClockApp extends Component {
-  state = {
-    // forecastType: null,
-    showTooltip: false,
-    tooltipText: '',
-    liveLocationName: null
+  constructor(props) {
+      super(props);
+      this.state = {
+        showTooltip: false,
+        tooltipText: '',
+        liveLocationName: null,
+        calendarAuthorized: ApiCalendar.sign,
+      };
+      ApiCalendar.onLoad(() => {
+        this.calendarAuthorizeIfNecessary();
+          // ApiCalendar.listenSign(this.updateCalendarAuthorization);
+      });
   }
   displayTooltip = (tooltipText) => {
     console.log("request to show tooltip with text: "+tooltipText)
@@ -164,9 +180,27 @@ class ClockApp extends Component {
   hideTooltip = () => {
     this.setState({showTooltip: false});
   }
+  calendarAuthorizeIfNecessary = () => {
+    if (!this.state.calendarAuthorized && getShowCalendar(this.props.query)) {
+      this.onCalendarAuthorize();
+    }
+  }
+  updateCalendarAuthorization = () => {
+    this.setState({calendarAuthorized: ApiCalendar.sign});
+  }
+  onCalendarAuthorize = () => {
+    console.log("onClickCalendar");
+    console.log(this.state.calendarAuthorized);
+    ApiCalendar.handleAuthClick();
+    this.updateCalendarAuthorization();
+    this.props.query.calendar = true;
+    this.props.history.push({pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(this.props.query, {encode: false})})
+
+  }
   render() {
     var fgColor = getfgColor(this.props.query);
     var bgColor = getbgColor(this.props.query);
+    var showCalendar = getShowCalendar(this.props.query);
     var forecastType = getForecastType(this.props.query);
     var fixedDate = getFixedDate(this.props.query); // will use live-data if null
     var fixedLocation = getFixedLocation(this.props.query); // will use live-data if null
@@ -229,6 +263,27 @@ class ClockApp extends Component {
 
     }
 
+    var calendarButtons = [];
+    if (this.state.calendarAuthorized) {
+
+      // see note above for forecast on why we do this
+      var cycleCalendarNextQuery = queryString.parse(this.props.search);
+      if (showCalendar) {
+        cycleCalendarNextQuery.calendar = undefined
+      } else {
+        cycleCalendarNextQuery.calendar = true
+      }
+
+      var toggleCalendarOpacity = 0.6;
+      if (showCalendar) {
+        toggleCalendarOpacity = 0.9
+      }
+
+      calendarButtons.push(<ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(cycleCalendarNextQuery, {encode: false})}} style={{paddingRight: "10px", opacity: toggleCalendarOpacity}} iconColor={fgColor} iconWidth="40px" iconClass={'far fa-2x fa-calendar-alt'}/>)
+    } else {
+      calendarButtons.push(<ToggleButton onClick={this.onCalendarAuthorize} style={{paddingRight: "10px", opacity: 0.6}} iconColor={fgColor} iconWidth="40px" iconClass={'far fa-2x fa-calendar'}/>)
+    }
+
     return (
       <div className="ClockApp">
         <Tooltip showTooltip={this.state.showTooltip} tooltipText={this.state.tooltipText} onClose={this.hideTooltip} bgColor={bgColor} fgColor={fgColor} />
@@ -238,6 +293,7 @@ class ClockApp extends Component {
         </div>
 
         <div style={{position: "absolute", bottom: "2%", left: "2%"}}>
+          {calendarButtons}
           {forecastButtons}
         </div>
 
@@ -249,6 +305,7 @@ class ClockApp extends Component {
         <Clock search={this.props.search}
                size={this.props.size} bgColor={bgColor} fgColor={fgColor}
                fixedDate={fixedDate} fixedLocation={fixedLocation} liveLocation={this.props.liveLocation} locationName={fixedLocationName || this.state.liveLocationName}
+               showCalendar={showCalendar && this.state.calendarAuthorized}
                showForecastRain={forecastType==='precipitation'} showForecastTemp={forecastType==='temperature'} showForecastCloud={forecastType==='cloud-coverage'}
                refreshForecast={this.props.refreshForecast} refreshForecastComplete={this.props.refreshForecastComplete} cycleForecastNextQuery={cycleForecastNextQuery}
                displayTooltip={this.displayTooltip}
