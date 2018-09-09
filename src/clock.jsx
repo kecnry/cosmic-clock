@@ -327,6 +327,10 @@ export default class Clock extends Component {
     // WEATHER
     var precipHour = [];
     var rHourWeather = null;
+    var tempHour = [];
+    var cloudHour = [];
+    var minHour = null;
+    var minHourText = null;
     var precipDay = [];
     var rDayWeather = null;
     var tempDay = []
@@ -356,6 +360,24 @@ export default class Clock extends Component {
             tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation in '+parseInt((rHourWeather-rHour)*60, 10)+' minutes with '+parseInt(precipIntensity*100, 10)+'% intensity.'
             precipHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={(1+0.8*precipProbability)*width} startAngle={rHourWeather} endAngle={rHourWeather+1.01/60} color={color} opacity={1-(min-45)/15} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
           }
+
+          if (rHourWeather > rHour && rHourWeather <= 1) {
+            minHour = 0
+            minHourText = 'this'
+          } else {
+            minHour = 1
+            minHourText = 'next'
+          }
+
+
+          temp = this.state.weather.hourly.data[minHour].temperature;
+          color = getTempColor(temp);
+          tooltipText = temp+' degrees '+minHourText+' hour.'
+          tempHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width} startAngle={rHourWeather} endAngle={rHourWeather+1.01/60} color={color} opacity={1-(min-45)/15} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
+
+          cloudCover = this.state.weather.hourly.data[minHour].cloudCover;
+          tooltipText = parseInt(cloudCover*100, 10)+'% cloud cover '+minHourText+' hour.'
+          cloudHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width} startAngle={rHourWeather} endAngle={rHourWeather+1.01/60} color={this.props.fgColor} opacity={0.7*cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
         }
       }
 
@@ -373,7 +395,7 @@ export default class Clock extends Component {
 
         temp = this.state.weather.hourly.data[hour].temperature;
         color = getTempColor(temp);
-        tooltipText = temp+' degress in '+hour+' hours.'
+        tooltipText = temp+' degrees in '+hour+' hours.'
         tempDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width} startAngle={rDayWeather} endAngle={rDayWeather+1.01/24} color={color} opacity={1-(hour-18)/6} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
 
         cloudCover = this.state.weather.hourly.data[hour].cloudCover;
@@ -402,7 +424,7 @@ export default class Clock extends Component {
 
         temp = this.state.weather.daily.data[day].temperatureMax;
         color = getTempColor(temp);
-        tooltipText = temp+' degress (max) in '+day+' days.'
+        tooltipText = temp+' degrees (max) in '+day+' days.'
         tempMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonthWeather} endAngle={rMonthWeather+1.01/nDays[month-1]} color={color} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
 
         cloudCover = this.state.weather.daily.data[day].cloudCover;
@@ -464,6 +486,8 @@ export default class Clock extends Component {
               {this.state.sunTimes ? <CircleMarker cx={cx} cy={cy} r={centerSize+2*spacing} width={1.7*width} endAngle={rDaySunset} color={this.props.fgColor} strokeWidth={strokeWidth} fill={'transparent'} tooltipText={sunsetTooltipText} onClick={this.props.displayTooltip}/> : null}
 
               {/* per-hour (minute) */}
+              {this.props.showForecastCloud ? cloudHour : null}
+              {this.props.showForecastTemp ? tempHour : null}
               {this.props.showForecastRain ? precipHour : null}
               <CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={width} startAngle={0} endAngle={rHour} color={this.props.fgColor}/>
 
