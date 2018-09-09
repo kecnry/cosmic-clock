@@ -250,7 +250,7 @@ class ClockApp extends Component {
         if (this.props.refreshForecast) {
           refreshForecastOpacity = 0.9
         }
-        refreshForecastButton = <ToggleButton onClick={this.forceRefreshForecast} style={{paddingRight: "10px", opacity: refreshForecastOpacity}} iconColor={fgColor} iconWidth="40px" iconClass={'wi fa-2x wi-cloud-refresh'}/>
+        refreshForecastButton = <ToggleButton onClick={this.props.forceRefreshForecast} style={{paddingRight: "10px", opacity: refreshForecastOpacity}} iconColor={fgColor} iconWidth="40px" iconClass={'wi fa-2x wi-cloud-refresh'}/>
       }
 
       forecastButtons.push(<ToggleButton to={{pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(cycleForecastNextQuery, {encode: false})}} style={{paddingRight: "10px", opacity: toggleForecastOpacity}} iconColor={fgColor} iconWidth="40px" iconClass={toggleForecastIcon}/>)
