@@ -173,7 +173,7 @@ export default class Clock extends Component {
 
           // check to see if weather is out of date and needs to be updated
           var showWeather = !this.props.fixedDate && (this.props.showForecastRain || this.props.showForecastTemp || this.props.showForecastCloud)
-          if (showWeather && (!this.state.weather || (this.state.date - this.state.weatherUpdateTime)/60000 > this.state.weatherUpdateIntervalMins)) {
+          if (showWeather && (!this.state.weather || this.props.refreshForecast || (this.state.date - this.state.weatherUpdateTime)/60000 > this.state.weatherUpdateIntervalMins)) {
             this.updateWeather();
           }
 
