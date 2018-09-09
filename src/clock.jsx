@@ -69,7 +69,11 @@ export default class Clock extends Component {
     sunTimes: null,
     moonPhase: null,
     calendarEvents: null,
+    calendarUpdateTime: null,
+    calendarUpdateIntervalMins: 10,
     weather: null,
+    weatherUpdateTime: null,
+    weatherUpdateIntervalMins: null,
     location: null,
   }
 
@@ -97,12 +101,29 @@ export default class Clock extends Component {
     ApiCalendar.listUpcomingEvents(10)
       .then(({result}: any) => {
         // console.log(result.items);
-        this.setState({calendarEvents: result.items})
+        this.setState({calendarEvents: result.items, calendarUpdateTime: new Date()})
 
         // for (var i=0; i < this.state.calendarEvents.length; i++) {
         //   console.log(this.state.calendarEvents[i].summary)
         // }
       });
+  }
+
+  updateWeatherState = (weather) => {
+    var weatherUpdateTime = weather.updatedDateTime.toDate();
+    var weatherUpdateIntervalMins = 120;
+
+    // here we'll assume we JUST got the forecast so we don't need to handle
+    // subtracting weatherUpdateTime
+    // we'll start at minute 15 so that the minimum time between updates is 12 mins
+    for (var min=15; min < 120; min++) {
+      if (weather.minutely.data[min].precipIntensity > 0.01 && weather.minutely.data[min].precipProbability > 0.01) {
+        weatherUpdateIntervalMins = 0.8 * min
+        break
+      }
+    }
+
+    this.setState({weather: weather, weatherUpdateTime: weatherUpdateTime, weatherUpdateIntervalMins: weatherUpdateIntervalMins})
   }
 
   updateWeather = () => {
@@ -115,7 +136,7 @@ export default class Clock extends Component {
       var location = {latitude: this.state.location.lat, longitude: this.state.location.long}
 
       DarkSkyApi.loadItAll('flags,alerts', location)
-        .then(result => this.setState({weather: result}));
+        .then(result => this.updateWeatherState(result));
 
       this.props.refreshForecastComplete();
     }
@@ -139,8 +160,9 @@ export default class Clock extends Component {
             // which the other interval will cover
             this.setState({date: this.props.fixedDate || new Date(), location: location});
             this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()});
-            this.updateWeather();
 
+            // clear the weather and let the checks below update it
+            this.setState({weather: null});
 
           } else if (this.props.fixedDate !== this.state.fixedDate) {
             this.setState({date: this.props.fixedDate || new Date(), fixedDate: this.props.fixedDate});
@@ -149,15 +171,17 @@ export default class Clock extends Component {
             this.setState({date: this.props.fixedDate || new Date()});
           }
 
-          if (this.props.refreshForecast || ((this.props.showForecastRain || this.props.showForecastTemp || this.props.showForecastCloud) && !this.state.weather)) {
+          // check to see if weather is out of date and needs to be updated
+          var showWeather = !this.props.fixedDate && (this.props.showForecastRain || this.props.showForecastTemp || this.props.showForecastCloud)
+          if (showWeather && (!this.state.weather || (this.state.date - this.state.weatherUpdateTime)/60000 > this.state.weatherUpdateIntervalMins)) {
             this.updateWeather();
           }
 
-
-
-          if (this.props.showCalendar && ! this.state.calendarEvents) {
-            this.updateCalendar()
+          var showCalendar = !this.props.fixedDate && this.props.showCalendar;
+          if (showCalendar && (!this.state.calendarEvents || (this.state.date - this.state.calendarUpdateTime)/60000 > this.state.calendarUpdateIntervalMins)) {
+            this.updateCalendar();
           }
+
 
         },
         1000  // every second
@@ -169,16 +193,7 @@ export default class Clock extends Component {
       },
       1000*60*60*24  // every day
     );
-    setInterval(
-      () => {
-        if (this.props.pauseUpdates) return
-        this.updateWeather()
-        this.updateCalendar()
-      },
-      1000*60*15 // every 15 minutes
-    )
     this.setState({moonPhase: this.computeMoonPhase()});
-    this.updateWeather();
 
   }
 
@@ -273,7 +288,7 @@ export default class Clock extends Component {
     }
 
 
-    // WEATHER
+    // CENTER ICON
     var centerIconClass = "wi "
     var centerIconText = null
     var centerIconOnClick = null
@@ -308,6 +323,8 @@ export default class Clock extends Component {
       centerIconClass += "wi-moon-"+moonIcon[parseInt(this.state.moonPhase*28, 10)];
     }
 
+
+    // WEATHER
     var precipHour = [];
     var rHourWeather = null;
     var precipDay = [];
@@ -326,33 +343,32 @@ export default class Clock extends Component {
     var tooltipText = ''
     var color
     if ((this.props.showForecastRain || this.props.showForecastCloud || this.props.showForecastTemp) && this.state.weather && !this.props.fixedDate) {
-      var weatherUpdateTime = this.state.weather.updatedDateTime.toDate();
 
       if ("minutely" in this.state.weather) {
         // not all locations have minutely data
         for (var min=0; min < 60; min++) {
           // weather begins at the beginning of the LATEST minute
-          rHourWeather = (weatherUpdateTime.getMinutes() + min)/60
+          rHourWeather = (this.state.weatherUpdateTime.getMinutes() + min)/60
           precipIntensity = this.state.weather.minutely.data[min].precipIntensity
           precipProbability = this.state.weather.minutely.data[min].precipProbability
           if (precipIntensity > 0.01 && precipProbability > 0.05) {
             color = getPrecipColor(precipIntensity);
             tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation in '+parseInt((rHourWeather-rHour)*60, 10)+' minutes with '+parseInt(precipIntensity*100, 10)+'% intensity.'
-            precipHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={(1+precipProbability)*width} startAngle={rHourWeather} endAngle={rHourWeather+1.01/60} color={color} opacity={1-(min-45)/15} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
+            precipHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={(1+0.8*precipProbability)*width} startAngle={rHourWeather} endAngle={rHourWeather+1.01/60} color={color} opacity={1-(min-45)/15} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
           }
         }
       }
 
       for (var hour=0; hour < 24; hour++) {
         // weather begins at the beginning of the LATEST hour
-        rDayWeather = (weatherUpdateTime.getHours() + hour)/24
+        rDayWeather = (this.state.weatherUpdateTime.getHours() + hour)/24
         precipIntensity = this.state.weather.hourly.data[hour].precipIntensity
         precipProbability = this.state.weather.hourly.data[hour].precipProbability
         if (precipIntensity > 0.01 && precipProbability > 0.05) {
           color = getPrecipColor(precipIntensity);
 
           tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation in '+((rDayWeather-rDay)*24).toFixed(1)+' hours with '+parseInt(precipIntensity*100, 10)+'% intensity.'
-          precipDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={(1+precipProbability)*width} startAngle={rDayWeather} endAngle={rDayWeather+1.01/24} color={color} opacity={1-(hour-18)/6} tooltipText={tooltipText} onClick={this.props.displayTooltip} />)
+          precipDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={(1+0.8*precipProbability)*width} startAngle={rDayWeather} endAngle={rDayWeather+1.01/24} color={color} opacity={1-(hour-18)/6} tooltipText={tooltipText} onClick={this.props.displayTooltip} />)
         }
 
         temp = this.state.weather.hourly.data[hour].temperature;
@@ -367,21 +383,21 @@ export default class Clock extends Component {
 
       for (var day=0; day <= 7; day++) {
         // not sure how rMonthWeather will handle wrapping over months
-        rMonthWeather = (weatherUpdateTime.getDate() - 1 + day) / nDays[month-1]
+        rMonthWeather = (this.state.weatherUpdateTime.getDate() - 1 + day) / nDays[month-1]
         // this may also be assuming locale time with Sunday at day 0
         if (day == 0) {
           dayOfWeekWeather = 'today'
         } else if (day == 1) {
           dayOfWeekWeather = 'tomorrow'
         } else {
-          dayOfWeekWeather = 'on '+['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][weatherUpdateTime.getDay()+day]
+          dayOfWeekWeather = 'on '+['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][this.state.weatherUpdateTime.getDay()+day]
         }
         precipIntensity = this.state.weather.daily.data[day].precipIntensityMax
         precipProbability = this.state.weather.daily.data[day].precipProbability
         if (precipIntensity > 0.05 && precipProbability > 0.1) {
           color = getPrecipColor(precipIntensity);
           tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation '+dayOfWeekWeather+' with '+parseInt(precipIntensity*100, 10)+'% maximum intensity.'
-          precipMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={(1+precipProbability)*width} startAngle={rMonthWeather} endAngle={rMonthWeather+1.01/nDays[month-1]} color={color} opacity={1-(day-20)/10} tooltipText={tooltipText} onClick={this.props.displayTooltip} />)
+          precipMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={(1+0.8*precipProbability)*width} startAngle={rMonthWeather} endAngle={rMonthWeather+1.01/nDays[month-1]} color={color} opacity={1-(day-20)/10} tooltipText={tooltipText} onClick={this.props.displayTooltip} />)
         }
 
         temp = this.state.weather.daily.data[day].temperatureMax;
