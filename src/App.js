@@ -99,7 +99,7 @@ class App extends Component {
     windowHeight: window.innerHeight,
     windowVisible: true,
     pauseUpdates: false, // only to be accessible from react developer tools
-    refreshForecast: true,
+    refreshForecast: false,
   }
   onChange = settings => this.setState(settings)
   forceRefreshForecast = () => {

@@ -65,6 +65,7 @@ DarkSkyApi.apiKey = '796616a5ef888b16148b7f659fba5725';
 export default class Clock extends Component {
   state = {
     date: new Date(),
+    fixedDate: null,
     sunTimes: null,
     moonPhase: null,
     calendarEvents: null,
@@ -141,14 +142,14 @@ export default class Clock extends Component {
             this.updateWeather();
 
 
-          } else if (this.props.fixedDate !== this.state.date) {
-            // this will continually update when fixedDate is null.  We do want that to happen the first time
-            this.setState({date: this.props.fixedDate || new Date()});
+          } else if (this.props.fixedDate !== this.state.fixedDate) {
+            this.setState({date: this.props.fixedDate || new Date(), fixedDate: this.props.fixedDate});
             this.setState({sunTimes: this.computeSunTimes(), moonPhase: this.computeMoonPhase()});
           } else {
             this.setState({date: this.props.fixedDate || new Date()});
           }
-          if (this.props.refreshForecast) {
+
+          if (this.props.refreshForecast || ((this.props.showForecastRain || this.props.showForecastTemp || this.props.showForecastCloud) && !this.state.weather)) {
             this.updateWeather();
           }
 
