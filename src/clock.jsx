@@ -111,12 +111,12 @@ export default class Clock extends Component {
 
   updateWeatherState = (weather) => {
     var weatherUpdateTime = weather.updatedDateTime.toDate();
-    var weatherUpdateIntervalMins = 120;
+    var weatherUpdateIntervalMins = 60;
 
     // here we'll assume we JUST got the forecast so we don't need to handle
     // subtracting weatherUpdateTime
     // we'll start at minute 15 so that the minimum time between updates is 12 mins
-    for (var min=15; min < 120; min++) {
+    for (var min=15; min < 60; min++) {
       if (weather.minutely.data[min].precipIntensity > 0.01 && weather.minutely.data[min].precipProbability > 0.01) {
         weatherUpdateIntervalMins = 0.8 * min
         break
