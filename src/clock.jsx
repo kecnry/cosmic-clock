@@ -412,7 +412,7 @@ export default class Clock extends Component {
         } else if (day == 1) {
           dayOfWeekWeather = 'tomorrow'
         } else {
-          dayOfWeekWeather = 'on '+['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][this.state.weatherUpdateTime.getDay()+day]
+          dayOfWeekWeather = 'on '+['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][this.state.weatherUpdateTime.getDay()+day]
         }
         precipIntensity = this.state.weather.daily.data[day].precipIntensityMax
         precipProbability = this.state.weather.daily.data[day].precipProbability
@@ -424,17 +424,17 @@ export default class Clock extends Component {
 
         temp = this.state.weather.daily.data[day].temperatureMax;
         color = getTempColor(temp);
-        tooltipText = temp+' degrees (max) in '+day+' days.'
+        tooltipText = temp+' degrees (max) '+dayOfWeekWeather+'.'
         tempMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonthWeather} endAngle={rMonthWeather+1.01/nDays[month-1]} color={color} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
 
         cloudCover = this.state.weather.daily.data[day].cloudCover;
-        tooltipText = parseInt(cloudCover*100, 10)+'% cloud cover in '+day+' days.'
+        tooltipText = parseInt(cloudCover*100, 10)+'% cloud cover '+dayOfWeekWeather+'.'
         cloudMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={1.5*width} startAngle={rMonthWeather} endAngle={rMonthWeather+1.01/nDays[month-1]} color={this.props.fgColor} opacity={0.7*cloudCover} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
 
       }
     }
     // since the last day++ has already happened, we'll draw this at day+delta instead of day+1
-    precipMonth.push(<Tick cx={cx} cy={cy} r={centerSize+1*spacing} endAngle={rMonthWeather+0.05/nDays[month-1]} color={getPrecipColor(0)} strokeWidth={strokeWidth/2} length={0.5*width}/>)
+    precipMonth.push(<Tick cx={cx} cy={cy} r={centerSize+1*spacing} endAngle={rMonthWeather+1.05/nDays[month-1]} color={getPrecipColor(0)} strokeWidth={strokeWidth/2} length={0.5*width}/>)
 
 
     return (
