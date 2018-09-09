@@ -380,14 +380,16 @@ export default class Clock extends Component {
 
     return (
       <div style={{paddingTop:50}}>
-        {/* weather */}
-        <td style={{textAlign: 'center'}}>
-          <Link to={{pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(this.props.cycleForecastNextQuery, {encode: false})}}>
-            {centerIconText ?
-              <i style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}>{centerIconText}&deg;</i> :
-              <i className={centerIconClass} onClick={centerIconOnClick} style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', top: this.props.size+50-centerIconSize/2, width: '100%', display: 'inline-block'}}/>
-            }
-          </Link>
+        {/* center icon : height set to 0 so as not to block click targets on svg elements below */}
+        <td style={{textAlign: 'center', zIndex: -999, height: "0px"}}>
+          <i style={{color: this.props.fgColor, fontSize: centerIconSize, position: 'fixed', top: this.props.size+50-centerIconSize/2, width: '100%', height: "0px", display: 'inline-block'}}>
+            <Link to={{pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(this.props.cycleForecastNextQuery, {encode: false})}}>
+              {centerIconText ?
+                <span onClick={centerIconOnClick}>{centerIconText}&deg;</span> :
+                <span className={centerIconClass} onClick={centerIconOnClick}></span>
+              }
+            </Link>
+          </i>
         </td>
 
         <div>
