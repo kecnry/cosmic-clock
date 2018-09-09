@@ -22,7 +22,7 @@ var moonIcon = ['new',
                 ]
 
 var getPrecipColor = function(precipIntensity, precipProbability) {
-  if (precipIntensity < 0.05 || precipProbability < 0.05) {
+  if (precipIntensity < 0.01 || precipProbability < 0.05) {
     return 'transparent'
   } else if (precipIntensity < 0.2) {
     return 'greenyellow'
@@ -117,11 +117,23 @@ export default class Clock extends Component {
 
     // here we'll assume we JUST got the forecast so we don't need to handle
     // subtracting weatherUpdateTime
+
+    // even if the minutely weather is clear, if we're expecting rain in the
+    // next hour, we should set the maximum to 30 mins
+    if (weather.hourly.data[0].precipIntensity > 0.01 && weather.hourly.data[0].precipProbability > 0.01) {
+      weatherUpdateIntervalMins = 30
+    }
+    if (weather.hourly.data[1].precipIntensity > 0.01 && weather.hourly.data[1].precipProbability > 0.01) {
+      weatherUpdateIntervalMins = 30
+    }
+
     // we'll start at minute 15 so that the minimum time between updates is 12 mins
     for (var min=15; min < 60; min++) {
       if (weather.minutely.data[min].precipIntensity > 0.01 && weather.minutely.data[min].precipProbability > 0.01) {
-        weatherUpdateIntervalMins = 0.8 * min
-        break
+        if (0.8 * min < weatherUpdateIntervalMins) {
+          weatherUpdateIntervalMins = 0.8 * min
+          break
+        }
       }
     }
 
@@ -189,7 +201,10 @@ export default class Clock extends Component {
 
           // check to see if weather is out of date and needs to be updated
           var showWeather = !this.props.fixedDate && (this.props.showForecastRain || this.props.showForecastTemp || this.props.showForecastCloud)
-          if (showWeather && (!this.state.weather || this.props.refreshForecast || (this.state.date - this.state.weatherUpdateTime)/60000 > this.state.weatherUpdateIntervalMins)) {
+          var weatherMinsSinceLastUpdate = (this.state.date - this.state.weatherUpdateTime)/60000;
+          var refreshWeatherFromInterval = weatherMinsSinceLastUpdate > this.state.weatherUpdateIntervalMins;
+          // var refreshWeatherNewHour = (this.state.date.getMinutes()===0) && (weatherMinsSinceLastUpdate > 5)
+          if (showWeather && (!this.state.weather || this.props.refreshForecast || refreshWeatherFromInterval)) {
             this.updateWeather();
           }
 
@@ -343,8 +358,10 @@ export default class Clock extends Component {
 
 
     // WEATHER
+    var opacityFactor = 1.0
     var precipHour = [];
     var rHourWeather = null;
+    var hour = null;
     var tempHour = [];
     var cloudHour = [];
     var minHour = null;
@@ -364,63 +381,101 @@ export default class Clock extends Component {
     var cloudCover = null;
     var tooltipText = ''
     var tooltipLink = null;
-    var color
+    var color = null;
     if ((this.props.showForecastRain || this.props.showForecastCloud || this.props.showForecastTemp) && this.state.weather && !this.props.fixedDate) {
 
       if ("minutely" in this.state.weather) {
         // not all locations have minutely data
-        for (var min=0; min < 60; min++) {
-          // weather begins at the beginning of the LATEST minute
-          rHourWeather = (this.state.weatherUpdateTime.getMinutes() + min)/60
-          tooltipLink = this.getDarkSkyLink(0) // TODO: technically this will fail for next day (only near midnight)
-          precipIntensity = this.state.weather.minutely.data[min].precipIntensity
-          precipProbability = this.state.weather.minutely.data[min].precipProbability
-          color = getPrecipColor(precipIntensity, precipProbability);
-          tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation in '+parseInt((rHourWeather-rHour)*60, 10)+' minutes with '+parseInt(precipIntensity*100, 10)+'% intensity.'
-          precipHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={(1+0.8*precipProbability)*width}
-                                         startAngle={rHourWeather} endAngle={rHourWeather+1.01/60}
-                                         color={color} opacity={1-(min-45)/15}
-                                         tooltipText={tooltipText} tooltipLink={tooltipLink} onClick={this.props.displayTooltip}/>)
+        var weatherMinsOld = this.state.date.getMinutes() - this.state.weatherUpdateTime.getMinutes();
+        if (weatherMinsOld < 0) {
+          // handle wrapping
+          weatherMinsOld += 60
+        }
 
-          if (rHourWeather > rHour && rHourWeather <= 1) {
+        tooltipLink = this.getDarkSkyLink(0) // TODO: technically this will fail for next day (only near midnight)
+
+        for (var minFuture=0; minFuture<60; minFuture++) {
+          rHourWeather = (this.state.date.getMinutes() + minFuture)/60
+
+          if (rHourWeather < 1) {
             minHour = 0
             minHourText = 'this'
           } else {
             minHour = 1
             minHourText = 'next'
           }
+          if (this.state.date.getHours() > this.state.weatherUpdateTime.getHours()) {
+            minHour += 1
+          }
+
+          // try to access from minutely data if within 60 mins of last update time
+          if (minFuture+weatherMinsOld<60) {
+            // then we can access from minutely data
+            precipIntensity = this.state.weather.minutely.data[minFuture+weatherMinsOld].precipIntensity
+            precipProbability = this.state.weather.minutely.data[minFuture+weatherMinsOld].precipProbability
+            tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation in '+minFuture+' minutes with '+parseInt(precipIntensity*100, 10)+'% intensity.'
+            opacityFactor = 1.0
+          } else {
+            precipIntensity = this.state.weather.hourly.data[minHour].precipIntensity
+            precipProbability = this.state.weather.hourly.data[minHour].precipProbability
+            tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation '+minHourText+' hour with '+parseInt(precipIntensity*100, 10)+'% intensity. (minute data available in '+parseInt(this.state.weatherUpdateIntervalMins-weatherMinsOld, 10)+' minutes)'
+            opacityFactor = 0.7
+          }
+
+          color = getPrecipColor(precipIntensity, precipProbability);
+          precipHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={(1+0.8*precipProbability)*width}
+                                         startAngle={rHourWeather} endAngle={rHourWeather+1.01/60}
+                                         color={color} opacity={opacityFactor}
+                                         tooltipText={tooltipText} tooltipLink={tooltipLink} onClick={this.props.displayTooltip}/>)
 
 
-          temp = this.state.weather.hourly.data[minHour].temperature;
-          color = getTempColor(temp);
-          tooltipText = temp+' degrees '+minHourText+' hour.'
-          tempHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width} startAngle={rHourWeather} endAngle={rHourWeather+1.01/60} color={color} opacity={1-(min-45)/15} tooltipText={tooltipText} onClick={this.props.displayTooltip}/>)
 
-          cloudCover = this.state.weather.hourly.data[minHour].cloudCover;
-          tooltipText = parseInt(cloudCover*100, 10)+'% cloud cover '+minHourText+' hour.'
-          cloudHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width}
+
+           temp = this.state.weather.hourly.data[minHour].temperature;
+           color = getTempColor(temp);
+           tooltipText = temp+' degrees '+minHourText+' hour.'
+           tempHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width}
                                         startAngle={rHourWeather} endAngle={rHourWeather+1.01/60}
-                                        color={this.props.fgColor} opacity={0.7*cloudCover}
+                                        color={color}
                                         tooltipText={tooltipText} tooltipLink={tooltipLink} onClick={this.props.displayTooltip}/>)
+
+           cloudCover = this.state.weather.hourly.data[minHour].cloudCover;
+           tooltipText = parseInt(cloudCover*100, 10)+'% cloud cover '+minHourText+' hour.'
+           cloudHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={1.5*width}
+                                         startAngle={rHourWeather} endAngle={rHourWeather+1.01/60}
+                                         color={this.props.fgColor} opacity={0.7*cloudCover}
+                                         tooltipText={tooltipText} tooltipLink={tooltipLink} onClick={this.props.displayTooltip}/>)
+
+
         }
       }
 
-      for (var hour=0; hour < 24; hour++) {
+      for (var h=0; h < 24; h++) {
         // weather begins at the beginning of the LATEST hour
-        rDayWeather = (this.state.weatherUpdateTime.getHours() + hour)/24
+        rDayWeather = (this.state.weatherUpdateTime.getHours() + h)/24
+
         if (rDayWeather < 0 || rDayWeather > 1) {
           tooltipLink = this.getDarkSkyLink(1)
         } else {
           tooltipLink = this.getDarkSkyLink(0)
         }
+
+        if (rDayWeather-rDay <= -1/24) {
+          // we'll never be more than one hour behind
+          // opacityFactor = 0.7
+          hour = h+24
+        } else {
+          // opacityFactor = 1.0
+          hour = h
+        }
+
         precipIntensity = this.state.weather.hourly.data[hour].precipIntensity
         precipProbability = this.state.weather.hourly.data[hour].precipProbability
         color = getPrecipColor(precipIntensity, precipProbability);
-
-        tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation in '+((rDayWeather-rDay)*24).toFixed(1)+' hours with '+parseInt(precipIntensity*100, 10)+'% intensity.'
+        tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation starting in '+((rDayWeather-rDay)*24).toFixed(1)+' hours with '+parseInt(precipIntensity*100, 10)+'% intensity.'
         precipDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={(1+0.8*precipProbability)*width}
                                       startAngle={rDayWeather} endAngle={rDayWeather+1.01/24}
-                                      color={color} opacity={1-(hour-18)/6}
+                                      color={color} opacity={1.0}
                                       tooltipText={tooltipText} tooltipLink={tooltipLink} onClick={this.props.displayTooltip} />)
 
         temp = this.state.weather.hourly.data[hour].temperature;
@@ -428,7 +483,7 @@ export default class Clock extends Component {
         tooltipText = temp+' degrees in '+hour+' hours.'
         tempDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={1.5*width}
                                     startAngle={rDayWeather} endAngle={rDayWeather+1.01/24}
-                                    color={color} opacity={1-(hour-18)/6}
+                                    color={color} opacity={1.0}
                                     tooltipText={tooltipText} tooltipLink={tooltipLink} onClick={this.props.displayTooltip}/>)
 
         cloudCover = this.state.weather.hourly.data[hour].cloudCover;
@@ -438,10 +493,17 @@ export default class Clock extends Component {
                                      color={this.props.fgColor} opacity={0.7*cloudCover}
                                      tooltipText={tooltipText} tooltipLink={tooltipLink} onClick={this.props.displayTooltip}/>)
       }
+      // since the last hour++ has already happened, we'll draw this at hour+delta
+      // precipDay.push(<Tick cx={cx} cy={cy} r={centerSize+2*spacing}
+      //                       endAngle={rDayWeather+1.01/24}
+      //                       color={getPrecipColor(0.1, 1)} strokeWidth={strokeWidth/2} length={1.8*width}/>)
 
       for (var day=0; day <= 7; day++) {
         // not sure how rMonthWeather will handle wrapping over months
         rMonthWeather = (this.state.weatherUpdateTime.getDate() - 1 + day) / nDays[month-1]
+        if (rMonthWeather > 1 ) {
+          rMonthWeather -= 1
+        }
         tooltipLink = this.getDarkSkyLink(day)
         // this may also be assuming locale time with Sunday at day 0
         if (day === 0) {
@@ -457,7 +519,7 @@ export default class Clock extends Component {
         tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation '+dayOfWeekWeather+' with '+parseInt(precipIntensity*100, 10)+'% maximum intensity.'
         precipMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={(1+0.8*precipProbability)*width}
                                         startAngle={rMonthWeather} endAngle={rMonthWeather+1.01/nDays[month-1]}
-                                        color={color} opacity={1-(day-20)/10}
+                                        color={color}
                                         tooltipText={tooltipText} tooltipLink={tooltipLink} onClick={this.props.displayTooltip} />)
 
         temp = this.state.weather.daily.data[day].temperatureMax;
@@ -476,9 +538,12 @@ export default class Clock extends Component {
                                        tooltipText={tooltipText} tooltipLink={tooltipLink} onClick={this.props.displayTooltip}/>)
 
       }
+      // since the last day++ has already happened, we'll draw this at day+delta instead of day+1
+      precipMonth.push(<Tick cx={cx} cy={cy} r={centerSize+1*spacing}
+                             endAngle={rMonthWeather+1.01/nDays[month-1]}
+                             color={getPrecipColor(0.1, 1)} strokeWidth={strokeWidth/2} length={1.8*width}/>)
     }
-    // since the last day++ has already happened, we'll draw this at day+delta instead of day+1
-    precipMonth.push(<Tick cx={cx} cy={cy} r={centerSize+1*spacing} endAngle={rMonthWeather+1.05/nDays[month-1]} color={getPrecipColor(0, 1)} strokeWidth={strokeWidth/2} length={0.5*width}/>)
+
 
 
     return (

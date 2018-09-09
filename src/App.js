@@ -171,7 +171,7 @@ class ClockApp extends Component {
       });
   }
   displayTooltip = (tooltipText, tooltipLink) => {
-    console.log("request to show tooltip with text: "+tooltipText)
+    // console.log("request to show tooltip with text: "+tooltipText)
     this.setState({tooltipText: tooltipText, tooltipLink: tooltipLink, showTooltip: true});
   }
   hideTooltip = () => {
@@ -342,7 +342,7 @@ class Tooltip extends Component {
       <div style={{position: "fixed", width: "100%", height: "100%", paddingTop: "30%", backgroundColor: "rgba(0,0,0,0.85)", display: display, zIndex: 999}} onClick={this.props.onClose}>
         <div style={{top: '50%', width: '50%', margin: 'auto', backgroundColor: this.props.bgColor, borderRadius: '10px', padding: '5px 20px 5px 20px'}}>
           <h2 style={{color: this.props.fgColor}}>{this.props.tooltipText}</h2>
-          {this.props.tooltipLink ? <a href={this.props.tooltipLink} style={{color: this.props.fgColor}} target="_blank" rel="noopener noreferrer"><span class="fas fa-external-link-alt"/> more info</a> : null}
+          {this.props.tooltipLink ? <a href={this.props.tooltipLink} style={{color: this.props.fgColor}} target="_blank" rel="noopener noreferrer"><span className="fas fa-external-link-alt"/> more info</a> : null}
           <p style={{color: this.props.fgColor}}>(click anywhere to close)</p>
         </div>
       </div>
