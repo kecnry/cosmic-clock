@@ -1,10 +1,6 @@
 import React, { Component } from 'react';
-import {
-  BrowserRouter as Router,
-  Switch,
-  Route,
-  Link
-} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Link} from 'react-router-dom';
+
 import {geolocated} from 'react-geolocated'; // https://www.npmjs.com/package/react-geolocated
 import queryString from 'query-string'; // https://www.npmjs.com/package/query-string
 import DateTimePicker from 'react-datetime-picker'; // https://github.com/wojtekmaj/react-datetime-picker
@@ -155,7 +151,7 @@ class App extends Component {
         </Router>
 
       </div>
-    );
+    )
   }
 }
 
@@ -189,8 +185,7 @@ class ClockApp extends Component {
     this.setState({calendarAuthorized: ApiCalendar.sign});
   }
   onCalendarAuthorize = () => {
-    console.log("onClickCalendar");
-    console.log(this.state.calendarAuthorized);
+    console.log("onCalendarAuthorize");
     ApiCalendar.handleAuthClick();
     this.updateCalendarAuthorization();
     this.props.query.calendar = true;
@@ -208,7 +203,7 @@ class ClockApp extends Component {
 
     if (!fixedLocationName && this.props.liveLocation && !this.state.liveLocationName) {
       console.log("attempting reverse geolocation at: lat: "+this.props.liveLocation.lat+" lng: "+this.props.liveLocation.long)
-      var geocoder = new window.google.maps.Geocoder;
+      var geocoder = new window.google.maps.Geocoder();
       geocoder.geocode({'location': {lat: this.props.liveLocation.lat, lng: this.props.liveLocation.long}}, (results, status) => {
                 if (status === 'OK') {
                   for (var i = 0; i < results.length; i++) {
