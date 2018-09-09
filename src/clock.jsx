@@ -273,7 +273,7 @@ export default class Clock extends Component {
         eventDateStart.setTime(Date.parse(this.state.calendarEvents[i].start.dateTime))
         eventDateEnd.setTime(Date.parse(this.state.calendarEvents[i].end.dateTime))
         // show events starting within the next 24 hours but have not already completed
-        if (eventDateStart - this.state.date < 24*60*60*1000 && eventDateEnd - this.state.date > 0) {
+        if (eventDateEnd - this.state.date < 24*60*60*1000 && eventDateEnd - this.state.date > 0) {
 
           rDayEventStart = eventDateStart.getHours() / 24
           rDayEventEnd = eventDateEnd.getHours() / 24
