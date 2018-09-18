@@ -308,7 +308,7 @@ export default class Clock extends Component {
         if (eventDateEnd - this.state.date < 24*60*60*1000 && eventDateEnd - this.state.date > 0) {
 
           rDayEventStart = (eventDateStart.getHours() + eventDateStart.getMinutes()/60) / 24
-          rDayEventEnd = (eventDateEnd.getHours() + eventDateStart.getMinutes()/60) / 24
+          rDayEventEnd = (eventDateEnd.getHours() + eventDateEnd.getMinutes()/60) / 24
           eventTooltip = this.state.calendarEvents[i].summary + " ("+eventDateStart.toLocaleDateString()+" "+eventDateStart.toLocaleTimeString()+"-"+eventDateEnd.toLocaleTimeString()+")"
           eventLink = this.state.calendarEvents[i].htmlLink
           calendarDay.push(<CircleSegment cx={cx} cy={cy}
