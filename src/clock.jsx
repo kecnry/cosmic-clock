@@ -295,7 +295,7 @@ export default class Clock extends Component {
     var month = this.state.date.getMonth() + 1;
     var rMonth = (days - 1) / nDays[month-1];
     var daysTotal = rDay;
-    for (i=1; i <= month; i++) {
+    for (i=1; i < month; i++) {
         daysTotal += nDays[month-1]
     }
     var rYear = daysTotal/365;
