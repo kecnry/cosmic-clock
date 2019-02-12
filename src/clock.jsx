@@ -21,28 +21,78 @@ var moonIcon = ['new',
                 'waning-crescent-1', 'waning-crescent-2', 'waning-crescent-3', 'waning-crescent-4', 'waning-crescent-5', 'waning-crescent-6',
                 ]
 
-var getPrecipColor = function(precipIntensity, precipProbability) {
-  if (precipIntensity < 0.01 || precipProbability < 0.05) {
-    return 'transparent'
-  } else if (precipIntensity < 0.2) {
-    return 'greenyellow'
-  } else if (precipIntensity < 0.3) {
-    return 'green'
-  } else if (precipIntensity < 0.4) {
-    return 'darkgreen'
-  } else if (precipIntensity < 0.5) {
-    return 'yellow'
-  } else if (precipIntensity < 0.6) {
-    return 'gold'
-  } else if (precipIntensity < 0.7) {
-    return 'orange'
-  } else if (precipIntensity < 0.8) {
-    return 'orangered'
-  } else if (precipIntensity < 0.9) {
-    return 'red'
+var getPrecipColor = function(precipIntensity, precipProbability, precipType) {
+  //https://www.quackit.com/css/css_color_codes.cfm
+  if (precipType=='snow') {
+    if (precipIntensity < 0.01 || precipProbability < 0.05) {
+      return 'transparent'
+    } else if (precipIntensity < 0.2) {
+      return 'lightblue'
+    } else if (precipIntensity < 0.3) {
+      return 'lightskyblue'
+    } else if (precipIntensity < 0.4) {
+      return 'cornflowerblue'
+    } else if (precipIntensity < 0.5) {
+      return 'royalblue'
+    } else if (precipIntensity < 0.6) {
+      return 'blue'
+    } else if (precipIntensity < 0.7) {
+      return 'mediumblue'
+    } else if (precipIntensity < 0.8) {
+      return 'darkblue'
+    } else if (precipIntensity < 0.9) {
+      return 'navy'
+    } else {
+      return 'midnightblue'
+    }
+  } else if (precipType==='sleet') {
+    if (precipIntensity < 0.01 || precipProbability < 0.05) {
+      return 'transparent'
+    } else if (precipIntensity < 0.2) {
+      return 'mediumpurple'
+    } else if (precipIntensity < 0.3) {
+      return 'mediumpurple'
+    } else if (precipIntensity < 0.4) {
+      return 'darkviolet'
+    } else if (precipIntensity < 0.5) {
+      return 'darkviolet'
+    } else if (precipIntensity < 0.6) {
+      return 'darkviolet'
+    } else if (precipIntensity < 0.7) {
+      return 'indigo'
+    } else if (precipIntensity < 0.8) {
+      return 'indigo'
+    } else if (precipIntensity < 0.9) {
+      return 'indigo'
+    } else {
+      return 'indigo'
+    }
   } else {
-    return 'darkred'
+    // then rain or not provided
+    if (precipIntensity < 0.01 || precipProbability < 0.05) {
+      return 'transparent'
+    } else if (precipIntensity < 0.2) {
+      return 'greenyellow'
+    } else if (precipIntensity < 0.3) {
+      return 'green'
+    } else if (precipIntensity < 0.4) {
+      return 'darkgreen'
+    } else if (precipIntensity < 0.5) {
+      return 'yellow'
+    } else if (precipIntensity < 0.6) {
+      return 'gold'
+    } else if (precipIntensity < 0.7) {
+      return 'orange'
+    } else if (precipIntensity < 0.8) {
+      return 'orangered'
+    } else if (precipIntensity < 0.9) {
+      return 'red'
+    } else {
+      return 'darkred'
+    }
   }
+
+
 }
 
 var getTempColor = function(temp) {
@@ -377,6 +427,7 @@ export default class Clock extends Component {
     var cloudMonth = [];
     var precipIntensity = null;
     var precipProbability = null;
+    var precipType = null;
     var temp = null;
     var cloudCover = null;
     var tooltipText = ''
@@ -413,16 +464,18 @@ export default class Clock extends Component {
             // then we can access from minutely data
             precipIntensity = this.state.weather.minutely.data[minFuture+weatherMinsOld].precipIntensity
             precipProbability = this.state.weather.minutely.data[minFuture+weatherMinsOld].precipProbability
-            tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation in '+minFuture+' minutes with '+parseInt(precipIntensity*100, 10)+'% intensity.'
+            precipType = this.state.weather.minutely.data[minFuture+weatherMinsOld].precipType
+            tooltipText = parseInt(precipProbability*100, 10)+'% chance of '+precipType+' in '+minFuture+' minutes with '+parseInt(precipIntensity*100, 10)+'% intensity.'
             opacityFactor = 1.0
           } else {
             precipIntensity = this.state.weather.hourly.data[minHour].precipIntensity
             precipProbability = this.state.weather.hourly.data[minHour].precipProbability
-            tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation '+minHourText+' hour with '+parseInt(precipIntensity*100, 10)+'% intensity. (minute data available in '+parseInt(this.state.weatherUpdateIntervalMins-weatherMinsOld, 10)+' minutes)'
+            precipType = this.state.weather.hourly.data[minHour].precipType
+            tooltipText = parseInt(precipProbability*100, 10)+'% chance of '+precipType+' in '+minHourText+' hour with '+parseInt(precipIntensity*100, 10)+'% intensity. (minute data available in '+parseInt(this.state.weatherUpdateIntervalMins-weatherMinsOld, 10)+' minutes)'
             opacityFactor = 0.7
           }
 
-          color = getPrecipColor(precipIntensity, precipProbability);
+          color = getPrecipColor(precipIntensity, precipProbability, precipType);
           precipHour.push(<CircleSegment cx={cx} cy={cy} r={centerSize+3*spacing} width={(1+0.8*precipProbability)*width}
                                          startAngle={rHourWeather} endAngle={rHourWeather+1.01/60}
                                          color={color} opacity={opacityFactor}
@@ -471,8 +524,9 @@ export default class Clock extends Component {
 
         precipIntensity = this.state.weather.hourly.data[hour].precipIntensity
         precipProbability = this.state.weather.hourly.data[hour].precipProbability
-        color = getPrecipColor(precipIntensity, precipProbability);
-        tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation starting in '+((rDayWeather-rDay)*24).toFixed(1)+' hours with '+parseInt(precipIntensity*100, 10)+'% intensity.'
+        precipType = this.state.weather.hourly.data[hour].precipType
+        color = getPrecipColor(precipIntensity, precipProbability, precipType);
+        tooltipText = parseInt(precipProbability*100, 10)+'% chance of '+precipType+' starting in '+((rDayWeather-rDay)*24).toFixed(1)+' hours with '+parseInt(precipIntensity*100, 10)+'% intensity.'
         precipDay.push(<CircleSegment cx={cx} cy={cy} r={centerSize+2*spacing} width={(1+0.8*precipProbability)*width}
                                       startAngle={rDayWeather} endAngle={rDayWeather+1.01/24}
                                       color={color} opacity={1.0}
@@ -515,8 +569,9 @@ export default class Clock extends Component {
         }
         precipIntensity = this.state.weather.daily.data[day].precipIntensityMax
         precipProbability = this.state.weather.daily.data[day].precipProbability
-        color = getPrecipColor(precipIntensity, precipProbability);
-        tooltipText = parseInt(precipProbability*100, 10)+'% chance of precipitation '+dayOfWeekWeather+' with '+parseInt(precipIntensity*100, 10)+'% maximum intensity.'
+        precipType = this.state.weather.daily.data[day].precipType
+        color = getPrecipColor(precipIntensity, precipProbability, precipType);
+        tooltipText = parseInt(precipProbability*100, 10)+'% chance of '+precipType+' '+dayOfWeekWeather+' with '+parseInt(precipIntensity*100, 10)+'% maximum intensity.'
         precipMonth.push(<CircleSegment cx={cx} cy={cy} r={centerSize+1*spacing} width={(1+0.8*precipProbability)*width}
                                         startAngle={rMonthWeather} endAngle={rMonthWeather+1.01/nDays[month-1]}
                                         color={color}
