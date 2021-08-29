@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/3.6.3/workbox-sw.js");
 
 importScripts(
-  "/cosmic-clock/precache-manifest.f53b4e4e00666f822db09a4ab22c3b1f.js"
+  "/cosmic-clock/precache-manifest.c937692bd8371c6a17ca453deed5643e.js"
 );
 
 workbox.clientsClaim();
