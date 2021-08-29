@@ -228,7 +228,7 @@ class ClockApp extends Component {
         () => {
             var forecastType = getForecastType(this.props.query);
             var [cycleForecastNextQuery, toggleForecastIcon] = getNextForecastButton(this.props.search, forecastType)
-            this.props.history.push({pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(cycleForecastNextQuery, {encode: false})})
+            this.props.history.replace({pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(cycleForecastNextQuery, {encode: false})})
           },
           forecastCycleSeconds * 1000
       );
