@@ -64,6 +64,35 @@ var getForecastType = function(query) {
   return null;
 }
 
+var getForecastCycle = function(query) {
+  if ('forecastCycleSeconds' in query) {
+    return query.forecastCycleSeconds;
+  }
+  return 0;
+}
+
+var getNextForecastButton = function(search, forecastType) {
+  var cycleForecastNextQuery = queryString.parse(search);
+
+  var toggleForecastIcon = 'wi fa-2x '
+  if (forecastType==='precipitation') {
+    toggleForecastIcon += 'wi-rain'
+    cycleForecastNextQuery.forecast = 'temperature'
+  } else if (forecastType==='temperature') {
+    toggleForecastIcon += 'wi-thermometer'
+    cycleForecastNextQuery.forecast = 'cloud-coverage'
+  } else if (forecastType==='cloud-coverage') {
+    toggleForecastIcon += 'wi-cloudy'
+    cycleForecastNextQuery.forecast = undefined
+  } else {
+    toggleForecastIcon += 'wi-cloud'
+    cycleForecastNextQuery.forecast = 'precipitation'
+  }
+
+  return [cycleForecastNextQuery, toggleForecastIcon]
+
+}
+
 var getFixedDate = function(query) {
   if ('fixedDate' in query) {
     var fixedDate = new Date()
@@ -191,8 +220,21 @@ class ClockApp extends Component {
     this.updateCalendarAuthorization();
     this.props.query.calendar = true;
     this.props.history.push({pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(this.props.query, {encode: false})})
-
   }
+  componentDidMount() {
+    var forecastCycleSeconds = getForecastCycle(this.props.query);
+    if (forecastCycleSeconds > 1) {
+      setInterval(
+        () => {
+            var forecastType = getForecastType(this.props.query);
+            var [cycleForecastNextQuery, toggleForecastIcon] = getNextForecastButton(this.props.search, forecastType)
+            this.props.history.push({pathname: process.env.PUBLIC_URL + '/', search: queryString.stringify(cycleForecastNextQuery, {encode: false})})
+          },
+          forecastCycleSeconds * 1000
+      );
+    }
+  }
+
   render() {
     var fgColor = getfgColor(this.props.query);
     var bgColor = getbgColor(this.props.query);
@@ -227,23 +269,8 @@ class ClockApp extends Component {
       // here we'll reparse search to avoid soft-copying the query dictionary,
       // otherwise it'll automatically be updated and if this ClockApp
       // is redrawn (e.g. by toggling the tooltip) then the cycle will be invoked.
-      var cycleForecastNextQuery = queryString.parse(this.props.search);
+      var [cycleForecastNextQuery, toggleForecastIcon] = getNextForecastButton(this.props.search, forecastType)
       var toggleForecastOpacity = 0.6;
-
-      var toggleForecastIcon = 'wi fa-2x '
-      if (forecastType==='precipitation') {
-        toggleForecastIcon += 'wi-rain'
-        cycleForecastNextQuery.forecast = 'temperature'
-      } else if (forecastType==='temperature') {
-        toggleForecastIcon += 'wi-thermometer'
-        cycleForecastNextQuery.forecast = 'cloud-coverage'
-      } else if (forecastType==='cloud-coverage') {
-        toggleForecastIcon += 'wi-cloudy'
-        cycleForecastNextQuery.forecast = undefined
-      } else {
-        toggleForecastIcon += 'wi-cloud'
-        cycleForecastNextQuery.forecast = 'precipitation'
-      }
 
       if (forecastType) {
         toggleForecastOpacity = 0.9
@@ -303,7 +330,7 @@ class ClockApp extends Component {
                fixedDate={fixedDate} fixedLocation={fixedLocation} liveLocation={this.props.liveLocation} locationName={fixedLocationName || this.state.liveLocationName}
                showCalendar={showCalendar && this.state.calendarAuthorized}
                showForecastRain={forecastType==='precipitation'} showForecastTemp={forecastType==='temperature'} showForecastCloud={forecastType==='cloud-coverage'}
-               refreshForecast={this.props.refreshForecast} refreshForecastComplete={this.props.refreshForecastComplete} cycleForecastNextQuery={cycleForecastNextQuery}
+               refreshForecast={this.props.refreshForecast} refreshForecastComplete={this.props.refreshForecastComplete} cycleForecastNextQuery={cycleForecastNextQuery || null}
                displayTooltip={this.displayTooltip}
                pauseUpdates={!this.props.windowVisible || this.props.pauseUpdates}/>
       </div>
