@@ -4,15 +4,15 @@ self.__precacheManifest = [
     "url": "/cosmic-clock/static/js/runtime~main.222fbab7.js"
   },
   {
-    "revision": "5c6176d804c87a26dba2",
-    "url": "/cosmic-clock/static/js/main.feea213e.chunk.js"
+    "revision": "4eee60188f910ab35342",
+    "url": "/cosmic-clock/static/js/main.642ca3eb.chunk.js"
   },
   {
     "revision": "250ca9bb67d70a918c74",
     "url": "/cosmic-clock/static/js/2.265dcae1.chunk.js"
   },
   {
-    "revision": "5c6176d804c87a26dba2",
+    "revision": "4eee60188f910ab35342",
     "url": "/cosmic-clock/static/css/main.ebc1e4f0.chunk.css"
   },
   {
@@ -20,7 +20,7 @@ self.__precacheManifest = [
     "url": "/cosmic-clock/static/css/2.193d13cd.chunk.css"
   },
   {
-    "revision": "94e455e70cc46612c0a31daa947a5ed5",
+    "revision": "2a91c5718a261631b9a50f0fbf0594b1",
     "url": "/cosmic-clock/index.html"
   }
 ];

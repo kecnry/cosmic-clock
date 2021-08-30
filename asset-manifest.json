@@ -1,14 +1,14 @@
 {
   "main.css": "/cosmic-clock/static/css/main.ebc1e4f0.chunk.css",
-  "main.js": "/cosmic-clock/static/js/main.feea213e.chunk.js",
-  "main.js.map": "/cosmic-clock/static/js/main.feea213e.chunk.js.map",
+  "main.js": "/cosmic-clock/static/js/main.642ca3eb.chunk.js",
+  "main.js.map": "/cosmic-clock/static/js/main.642ca3eb.chunk.js.map",
   "runtime~main.js": "/cosmic-clock/static/js/runtime~main.222fbab7.js",
   "runtime~main.js.map": "/cosmic-clock/static/js/runtime~main.222fbab7.js.map",
   "static/css/2.193d13cd.chunk.css": "/cosmic-clock/static/css/2.193d13cd.chunk.css",
   "static/js/2.265dcae1.chunk.js": "/cosmic-clock/static/js/2.265dcae1.chunk.js",
   "static/js/2.265dcae1.chunk.js.map": "/cosmic-clock/static/js/2.265dcae1.chunk.js.map",
   "index.html": "/cosmic-clock/index.html",
-  "precache-manifest.c937692bd8371c6a17ca453deed5643e.js": "/cosmic-clock/precache-manifest.c937692bd8371c6a17ca453deed5643e.js",
+  "precache-manifest.130866c861a192d7844a7340f6cde142.js": "/cosmic-clock/precache-manifest.130866c861a192d7844a7340f6cde142.js",
   "service-worker.js": "/cosmic-clock/service-worker.js",
   "static/css/2.193d13cd.chunk.css.map": "/cosmic-clock/static/css/2.193d13cd.chunk.css.map",
   "static/css/main.ebc1e4f0.chunk.css.map": "/cosmic-clock/static/css/main.ebc1e4f0.chunk.css.map"
