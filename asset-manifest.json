@@ -1,15 +1,15 @@
 {
-  "main.css": "/cosmic-clock/static/css/main.ebc1e4f0.chunk.css",
-  "main.js": "/cosmic-clock/static/js/main.642ca3eb.chunk.js",
-  "main.js.map": "/cosmic-clock/static/js/main.642ca3eb.chunk.js.map",
+  "main.css": "/cosmic-clock/static/css/main.0e3dca35.chunk.css",
+  "main.js": "/cosmic-clock/static/js/main.b0fb2ac6.chunk.js",
+  "main.js.map": "/cosmic-clock/static/js/main.b0fb2ac6.chunk.js.map",
   "runtime~main.js": "/cosmic-clock/static/js/runtime~main.222fbab7.js",
   "runtime~main.js.map": "/cosmic-clock/static/js/runtime~main.222fbab7.js.map",
-  "static/css/2.193d13cd.chunk.css": "/cosmic-clock/static/css/2.193d13cd.chunk.css",
-  "static/js/2.265dcae1.chunk.js": "/cosmic-clock/static/js/2.265dcae1.chunk.js",
-  "static/js/2.265dcae1.chunk.js.map": "/cosmic-clock/static/js/2.265dcae1.chunk.js.map",
+  "static/css/2.55690a86.chunk.css": "/cosmic-clock/static/css/2.55690a86.chunk.css",
+  "static/js/2.1c7a4fae.chunk.js": "/cosmic-clock/static/js/2.1c7a4fae.chunk.js",
+  "static/js/2.1c7a4fae.chunk.js.map": "/cosmic-clock/static/js/2.1c7a4fae.chunk.js.map",
   "index.html": "/cosmic-clock/index.html",
-  "precache-manifest.130866c861a192d7844a7340f6cde142.js": "/cosmic-clock/precache-manifest.130866c861a192d7844a7340f6cde142.js",
+  "precache-manifest.2994df6f7dffd68ee574c6577c6cd9e6.js": "/cosmic-clock/precache-manifest.2994df6f7dffd68ee574c6577c6cd9e6.js",
   "service-worker.js": "/cosmic-clock/service-worker.js",
-  "static/css/2.193d13cd.chunk.css.map": "/cosmic-clock/static/css/2.193d13cd.chunk.css.map",
-  "static/css/main.ebc1e4f0.chunk.css.map": "/cosmic-clock/static/css/main.ebc1e4f0.chunk.css.map"
+  "static/css/2.55690a86.chunk.css.map": "/cosmic-clock/static/css/2.55690a86.chunk.css.map",
+  "static/css/main.0e3dca35.chunk.css.map": "/cosmic-clock/static/css/main.0e3dca35.chunk.css.map"
 }
